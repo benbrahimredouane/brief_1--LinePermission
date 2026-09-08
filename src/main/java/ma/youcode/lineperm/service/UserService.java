@@ -11,6 +11,8 @@ import java.util.HashMap;
 public class UserService {
     private HashMap<String, String> users = new HashMap<>();
 
+    private User currentUser;
+
     public User createUser(String name, String code) {
 
         User user = new User(name, code);
@@ -30,9 +32,24 @@ public class UserService {
         } catch (IOException e) {
             System.out.println("Error saving user.");
         }
-
+        currentUser = user;
+        System.out.println("Welcome " + currentUser.getName());
         return user;
 
+    }
+
+    public boolean login(String name, String code) {
+        if (users.containsKey(name)) {
+            if (users.get(name).equals(code)) {
+                currentUser = new User(name, code);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public User getCurrentUser(){
+        return currentUser;
     }
 
 }

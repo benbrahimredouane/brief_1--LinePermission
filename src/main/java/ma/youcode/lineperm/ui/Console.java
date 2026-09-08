@@ -30,7 +30,9 @@ public class Console {
                     signup(scanner);
                     break;
                 case "login":
+                    
                     System.out.print("login \n");
+                    login(scanner);
 
                     break;
                 case "help":
@@ -64,6 +66,24 @@ public class Console {
 
         userService.createUser(name, code);
 
+    }
+    public static void login(Scanner scanner){
+        System.out.println("name:  ");
+        String name = scanner.nextLine();
+
+        System.out.println("password:  ");
+        String code = scanner.nextLine();
+
+        boolean isAuth = userService.login(name,code);
+
+        if(isAuth){
+            System.out.println("Login succesuly::::");
+            System.out.println("welcome " + userService.getCurrentUser().getName());
+
+
+        }else{
+            System.out.println("wrong name or password!");
+        }
     }
 
 }
