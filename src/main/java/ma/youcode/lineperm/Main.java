@@ -3,6 +3,7 @@ package ma.youcode.lineperm;
 
 import ma.youcode.lineperm.ui.Console;
 
+
 public class Main {
 
     public static void main(String[] args) {
@@ -16,7 +17,6 @@ public class Main {
         Console console = new Console();
         console.start();
  
-
 
     }
 }
