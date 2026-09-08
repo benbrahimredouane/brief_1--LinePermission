@@ -3,10 +3,8 @@ package ma.youcode.lineperm.ui;
 import java.util.Scanner;
 import ma.youcode.lineperm.service.UserService;
 
-
 public class Console {
     public static UserService userService = new UserService();
-
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
@@ -17,6 +15,8 @@ public class Console {
         if (input.equals("exit")) {
             System.out.print("bye");
         }
+
+        userService.loadUsers();
 
         while (!input.equals("exit")) {
 
@@ -30,7 +30,7 @@ public class Console {
                     signup(scanner);
                     break;
                 case "login":
-                    
+
                     System.out.print("login \n");
                     login(scanner);
 
@@ -40,12 +40,23 @@ public class Console {
 
                     break;
 
+                case "logout":
+                    System.out.print("loging out ... \n");
+                    userService.isAuth = false;
+
+                    break;
+
                 default:
                     System.out.print("invalide input  \n");
                     break;
             }
 
-            System.out.print("lineperm> ");
+            if (userService.isAuth) {
+                System.out.print(userService.getCurrentUser().getName() + "@lineperm> ");
+            } else {
+                System.out.print("lineperm>");
+            }
+
             input = scanner.nextLine();
 
             if (input.equals("exit")) {
@@ -61,27 +72,35 @@ public class Console {
         System.out.print("name:");
         String name = scanner.nextLine();
 
+        if (name.isEmpty()) {
+            return;
+        }
+
         System.out.print("password:");
         String code = scanner.nextLine();
+
+        if (code.isEmpty() || code.length() < 4) {
+            return;
+        }
 
         userService.createUser(name, code);
 
     }
-    public static void login(Scanner scanner){
-        System.out.println("name:  ");
+
+    public static void login(Scanner scanner) {
+        System.out.print("name:");
         String name = scanner.nextLine();
 
-        System.out.println("password:  ");
+        System.out.print("password:");
         String code = scanner.nextLine();
 
-        boolean isAuth = userService.login(name,code);
+        userService.login(name, code);
 
-        if(isAuth){
+        if (userService.isAuth) {
             System.out.println("Login succesuly::::");
             System.out.println("welcome " + userService.getCurrentUser().getName());
 
-
-        }else{
+        } else {
             System.out.println("wrong name or password!");
         }
     }

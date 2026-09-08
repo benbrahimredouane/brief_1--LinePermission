@@ -7,17 +7,26 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 
 import java.util.HashMap;
+import java.nio.file.Path;
+import java.nio.file.Files;
+import java.util.List;
 
 public class UserService {
+    public static boolean isAuth = false;
     private HashMap<String, String> users = new HashMap<>();
 
     private User currentUser;
 
-    public User createUser(String name, String code) {
+    public void createUser(String name, String code) {
 
+        if (users.containsKey(name)) {
+            System.out.println("allready existe");
+            return;
+        }
         User user = new User(name, code);
 
         users.put(name, code);
+
         System.out.println(users);
 
         try {
@@ -34,22 +43,49 @@ public class UserService {
         }
         currentUser = user;
         System.out.println("Welcome " + currentUser.getName());
-        return user;
+        isAuth = true;
 
     }
 
-    public boolean login(String name, String code) {
+    public void login(String name, String code) {
         if (users.containsKey(name)) {
             if (users.get(name).equals(code)) {
                 currentUser = new User(name, code);
-                return true;
+                isAuth = true;
+
             }
         }
-        return false;
     }
 
-    public User getCurrentUser(){
+    public User getCurrentUser() {
         return currentUser;
+    }
+
+    public void loadUsers() {
+
+        try {
+            Path path = Path.of("src/main/resources/users.txt");
+
+            if (!Files.exists(path)) {
+                return;
+            }
+
+            List<String> lines = Files.readAllLines(path);
+            for (String line : lines) {
+
+                String[] parts = line.split(":");
+
+                String name = parts[0];
+                String password = parts[1];
+               
+                users.put(name, password);
+
+            }
+
+        } catch (Exception e) {
+            System.out.println("Failed to load path");
+        }
+
     }
 
 }
