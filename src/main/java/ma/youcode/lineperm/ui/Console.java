@@ -3,20 +3,17 @@ package ma.youcode.lineperm.ui;
 import java.util.Scanner;
 import ma.youcode.lineperm.service.UserService;
 
-// import java.io.FileWriter;
-// import java.io.IOException;
-// import java.io.FileNotFoundException;
-
-import java.util.HashMap;
 
 public class Console {
+    public static UserService userService = new UserService();
+
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("lineperm> ");
         String input = scanner.nextLine();
 
-        input.trim().toLowerCase();
+        input = input.trim().toLowerCase();
         if (input.equals("exit")) {
             System.out.print("bye");
         }
@@ -29,8 +26,8 @@ public class Console {
                     System.out.println("=================");
                     System.out.print("signup \n");
                     System.out.println("=================");
-                    signup();
 
+                    signup(scanner);
                     break;
                 case "login":
                     System.out.print("login \n");
@@ -57,18 +54,15 @@ public class Console {
         scanner.close();
     }
 
-    public static void signup() {
-        HashMap<String,String> users = new HashMap<String, String>();
-        Scanner scanner = new Scanner(System.in);
-        // UserService userservice = new UserService();
+    public static void signup(Scanner scanner) {
+
         System.out.print("name:");
         String name = scanner.nextLine();
 
         System.out.print("password:");
         String code = scanner.nextLine();
-        // userservice.createUser(name, code);
 
-    
+        userService.createUser(name, code);
 
     }
 

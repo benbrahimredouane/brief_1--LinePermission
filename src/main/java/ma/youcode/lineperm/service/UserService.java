@@ -2,14 +2,37 @@ package ma.youcode.lineperm.service;
 
 import ma.youcode.lineperm.model.User;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+
+import java.util.HashMap;
+
 public class UserService {
+    private HashMap<String, String> users = new HashMap<>();
 
-    public User createUser(String name , String code){
+    public User createUser(String name, String code) {
 
-        User user = new User(name , code);
+        User user = new User(name, code);
+
+        users.put(name, code);
+        System.out.println(users);
+
+        try {
+            FileWriter writer = new FileWriter("src\\main\\resources\\users.txt", true);
+
+            writer.write(name + ":" + code + "\n");
+
+            writer.close();
+
+        } catch (FileNotFoundException e) {
+            System.out.println("File path not found");
+        } catch (IOException e) {
+            System.out.println("Error saving user.");
+        }
 
         return user;
 
     }
-    
+
 }
