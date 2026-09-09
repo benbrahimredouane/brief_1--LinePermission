@@ -7,11 +7,15 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 
 import java.util.HashMap;
-import java.nio.file.Path;
-import java.nio.file.Files;
 import java.util.List;
 
+import java.nio.file.Path;
+import java.nio.file.Files;
+
+import org.mindrot.jbcrypt.BCrypt;
+
 public class UserService {
+
     public static boolean isAuth = false;
     private HashMap<String, String> users = new HashMap<>();
 
@@ -23,16 +27,20 @@ public class UserService {
             System.out.println("allready existe");
             return;
         }
-        User user = new User(name, code);
 
-        users.put(name, code);
+        String pass = BCrypt.hashpw(code, BCrypt.gensalt());
+
+        User user = new User(name, pass);
+        System.out.println(user);
+
+        users.put(name, pass);
 
         System.out.println(users);
 
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\users.txt", true);
 
-            writer.write(name + ":" + code + "\n");
+            writer.write(name + ":" + pass + "\n");
 
             writer.close();
 
@@ -49,11 +57,19 @@ public class UserService {
 
     public void login(String name, String code) {
         if (users.containsKey(name)) {
-            if (users.get(name).equals(code)) {
-                currentUser = new User(name, code);
-                isAuth = true;
 
+            String hashedPassword = users.get(name);
+
+            if (BCrypt.checkpw(code, hashedPassword)) {
+                currentUser = new User(name, hashedPassword);
+                isAuth = true;
+                System.out.println("welcome" + currentUser.getName());
+
+            } else {
+                System.out.println("wrong password");
             }
+        } else {
+            System.out.println("User not found");
         }
     }
 
@@ -73,11 +89,11 @@ public class UserService {
             List<String> lines = Files.readAllLines(path);
             for (String line : lines) {
 
-                String[] parts = line.split(":");
+                String[] parts = line.split(":", 2);
 
                 String name = parts[0];
                 String password = parts[1];
-               
+
                 users.put(name, password);
 
             }

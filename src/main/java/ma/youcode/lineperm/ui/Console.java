@@ -1,6 +1,9 @@
 package ma.youcode.lineperm.ui;
 
 import java.util.Scanner;
+
+import javax.swing.plaf.synth.SynthToolTipUI;
+
 import ma.youcode.lineperm.service.UserService;
 
 public class Console {
@@ -41,6 +44,10 @@ public class Console {
                     break;
 
                 case "logout":
+                    if (!userService.isAuth) {
+                        System.out.println("your are not connected to do that");
+                        break;
+                    }
                     System.out.print("loging out ... \n");
                     userService.isAuth = false;
 
@@ -73,6 +80,7 @@ public class Console {
         String name = scanner.nextLine();
 
         if (name.isEmpty()) {
+            System.out.println("that name is empty");
             return;
         }
 
@@ -80,6 +88,7 @@ public class Console {
         String code = scanner.nextLine();
 
         if (code.isEmpty() || code.length() < 4) {
+            System.out.println("that code is unvalide");
             return;
         }
 
@@ -88,6 +97,10 @@ public class Console {
     }
 
     public static void login(Scanner scanner) {
+        if (userService.isAuth) {
+            System.out.println("allredy loged in !!");
+            return;
+        }
         System.out.print("name:");
         String name = scanner.nextLine();
 
