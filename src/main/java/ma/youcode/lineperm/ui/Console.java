@@ -4,10 +4,12 @@ import java.util.Scanner;
 
 import javax.swing.plaf.synth.SynthToolTipUI;
 
+import ma.youcode.lineperm.service.FileService;
 import ma.youcode.lineperm.service.UserService;
 
 public class Console {
     public static UserService userService = new UserService();
+    public static FileService fileService = new FileService();
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
@@ -22,40 +24,54 @@ public class Console {
         userService.loadUsers();
 
         while (!input.equals("exit")) {
+            String[] parts = input.split(" ", 2);
 
-            switch (input) {
-                case "signup":
+            if (parts.length == 1) {
 
-                    System.out.println("=================");
-                    System.out.print("signup \n");
-                    System.out.println("=================");
+                switch (input) {
+                    case "signup":
 
-                    signup(scanner);
-                    break;
-                case "login":
+                        System.out.println("=================");
+                        System.out.print("signup \n");
+                        System.out.println("=================");
 
-                    System.out.print("login \n");
-                    login(scanner);
-
-                    break;
-                case "help":
-                    System.out.print("help your self \n");
-
-                    break;
-
-                case "logout":
-                    if (!userService.isAuth) {
-                        System.out.println("your are not connected to do that");
+                        signup(scanner);
                         break;
-                    }
-                    System.out.print("loging out ... \n");
-                    userService.isAuth = false;
+                    case "login":
 
-                    break;
+                        System.out.print("login \n");
+                        login(scanner);
 
-                default:
-                    System.out.print("invalide input  \n");
-                    break;
+                        break;
+                    case "help":
+                        System.out.print("help your self \n");
+
+                        break;
+
+                    case "logout":
+                        logout();
+                        break;
+
+                    default:
+                        System.out.print("invalide input  \n");
+                        break;
+                }
+
+            } else {
+                String commande = parts[0];
+                String fileName = parts[1];
+
+                switch (commande) {
+                    case "touch":
+                        createfile();
+
+                        break;
+
+                    default:
+                        System.out.println("invalide commannde");
+                        break;
+                }
+
             }
 
             if (userService.isAuth) {
@@ -116,6 +132,26 @@ public class Console {
         } else {
             System.out.println("wrong name or password!");
         }
+    }
+
+    public static void logout() {
+        if (!userService.isAuth) {
+            System.out.println("your are not connected to do that");
+            return;
+        }
+        System.out.print("loging out ... \n");
+        userService.isAuth = false;
+
+    }
+
+    public static void createfile() {
+        if(userService.isAuth){
+        fileService.createFile();
+        }
+        else{
+            System.out.println("you are not connected ::!!!");
+        }
+
     }
 
 }

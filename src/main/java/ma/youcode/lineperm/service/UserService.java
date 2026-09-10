@@ -31,11 +31,11 @@ public class UserService {
         String pass = BCrypt.hashpw(code, BCrypt.gensalt());
 
         User user = new User(name, pass);
-        System.out.println(user);
+        // System.out.println(user);
 
         users.put(name, pass);
 
-        System.out.println(users);
+        // System.out.println(users);
 
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\users.txt", true);
@@ -57,7 +57,6 @@ public class UserService {
 
     public void login(String name, String code) {
         if (users.containsKey(name)) {
-
             String hashedPassword = users.get(name);
 
             if (BCrypt.checkpw(code, hashedPassword)) {
