@@ -19,7 +19,7 @@ public class UserService {
     public static boolean isAuth = false;
     private HashMap<String, String> users = new HashMap<>();
 
-    private User currentUser;
+    private static User currentUser;
 
     public void createUser(String name, String code) {
 
@@ -62,7 +62,6 @@ public class UserService {
             if (BCrypt.checkpw(code, hashedPassword)) {
                 currentUser = new User(name, hashedPassword);
                 isAuth = true;
-                System.out.println("welcome" + currentUser.getName());
 
             } else {
                 System.out.println("wrong password");

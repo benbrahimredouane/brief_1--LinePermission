@@ -3,41 +3,59 @@ package ma.youcode.lineperm.service;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import ma.youcode.lineperm.model.FileE;
+import ma.youcode.lineperm.model.BriefFile;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 import java.io.File;
 
 public class FileService {
-    private FileE filePro;
+
     UserService userService = new UserService();
+    private HashMap<String, String> filesOwners = new HashMap<>();
 
     public void createFile(String fileName) {
+        System.out.println(userService.isAuth);
+        System.out.println(userService.getCurrentUser().getName());
+
+        String owner = userService.getCurrentUser().getName();
+
         System.out.println("creating file ....");
 
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\filesStorage\\" + fileName, true);
 
-            // writer.write(content + "\n");
-
-            // writer.close();
-
-            // file propriters
-            // filePro = new FileE(userService.getCurrentUser().getName());
-            // filePro.setPro(userService.getCurrentUser().getName());
-
         } catch (FileNotFoundException e) {
             System.out.println("File path not found");
         } catch (IOException e) {
-            System.out.println("Error saving user.");
+            System.out.println("Error saving FILE.");
+        }
+        BriefFile file = new BriefFile(owner);
+        filesOwners.put(fileName, owner);
+        file.setPermition("---");
+
+        try {
+            FileWriter writer = new FileWriter("src\\main\\resources\\fileOwners.txt", true);
+
+            String permition = file.getPermition();
+            writer.write(fileName + ":" + owner + ":" + permition +"\n");
+            writer.close();
+
+        } catch (IOException e) {
+            System.out.println("could not write to that file");
+
         }
         return;
 
     }
 
     public void nano(String fileName) {
+        
 
         Scanner scanner = new Scanner(System.in);
 
@@ -54,7 +72,7 @@ public class FileService {
 
         }
 
-        System.out.println(sc);
+        // System.out.println(sc);
         // scanner.close();
         try {
             // FileWriter writer = new FileWriter("",true)
@@ -64,12 +82,14 @@ public class FileService {
 
         } catch (IOException e) {
             System.out.println("could not write the file");
-
         }
     }
 
     public void ls() {
+        System.out.println("=================");
         System.out.println("lister files....");
+        System.out.println("=================");
+
         String dirctpath = "src\\main\\resources\\filesStorage";
 
         File dir = new File(dirctpath);
@@ -81,6 +101,62 @@ public class FileService {
                 System.out.println(file.getName());
             }
         }
+
+    }
+
+    public void listWithPermision() {
+        System.out.println("=================");
+        System.out.println("lister files with permision....");
+        System.out.println("=================");
+
+        try {
+            Path path = Path.of("src\\main\\resources\\fileOwners.txt");
+
+            if (!Files.exists(path)) {
+                return;
+            }
+
+            List<String> lines = Files.readAllLines(path);
+            for (String line : lines) {
+
+                String[] parts = line.split(":");
+
+                String owner = parts[0];
+                String fileName = parts[1];
+                String permition = parts[2];
+
+                System.out.println("rwd | " + permition+ " " + owner + " " + fileName);
+
+            }
+
+        } catch (Exception e) {
+            System.out.println("Failed to load path");
+        }
+
+    }
+
+    public void cat(String fileName) {
+
+        File file1 = new File("src\\main\\resources\\filesStorage\\" + fileName);
+        if (file1.length() == 0){
+            System.out.println("(this file is empty)");
+        }
+        try {
+
+            Scanner sc = new Scanner(file1);
+            while (sc.hasNextLine()) {
+                System.out.println(sc.nextLine());
+            }
+        } catch (Exception e) {
+            System.out.println("cant read file");
+        }
+
+    }
+    public void chmoud(String droit ,String fileName){
+        System.out.println(droit);
+        System.out.println(fileName);
+        
+
 
     }
 

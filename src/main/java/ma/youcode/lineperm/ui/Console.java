@@ -34,6 +34,7 @@ public class Console {
                         System.out.println("=================");
 
                         signup(scanner);
+                        break;
 
                     case "login":
                         System.out.println("=================");
@@ -50,7 +51,9 @@ public class Console {
                         break;
 
                     case "logout":
+                        System.out.println("=================");
                         logout();
+                        System.out.println("=================");
                         break;
                     case "ls":
                         ls();
@@ -78,10 +81,12 @@ public class Console {
                         System.out.println("comming soon");
 
                         String option = parts[1];
+                        listwithpermition(option);
                         break;
 
                     case "cat":
-                        System.out.println("comming soon");
+                        cat(fileName);
+                        // System.out.println("comming soon");
                         break;
 
                     default:
@@ -96,7 +101,7 @@ public class Console {
 
                 switch (commande) {
                     case "chmoud":
-                        System.out.println("chmoud thinks");
+                        chmoud(droits , fileName);
 
                         break;
 
@@ -144,10 +149,10 @@ public class Console {
     }
 
     public static void login(Scanner scanner) {
-        if (userService.isAuth) {
-            System.out.println("allredy loged in !!");
-            return;
-        }
+        // if (userService.isAuth) {
+        //     System.out.println("allredy loged in !!");
+        //     return;
+        // }
         System.out.print("name:");
         String name = scanner.nextLine();
 
@@ -199,6 +204,25 @@ public class Console {
             return;
         }
         fileService.ls();
+    }
+
+    public static void cat(String fileName) {
+        if (!userService.isAuth) {
+            System.out.println("your are not connected !!");
+            return;
+        }
+        fileService.cat(fileName);
+
+    }
+    public static void listwithpermition(String option){
+    if(option.equals("-l")){
+    fileService.listWithPermision();
+    }
+
+    }
+    public static void chmoud(String droit, String fileName){
+        fileService.chmoud(droit,fileName);
+        
     }
 
 }
