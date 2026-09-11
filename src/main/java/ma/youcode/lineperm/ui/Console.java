@@ -2,8 +2,6 @@ package ma.youcode.lineperm.ui;
 
 import java.util.Scanner;
 
-import javax.swing.plaf.synth.SynthToolTipUI;
-
 import ma.youcode.lineperm.service.FileService;
 import ma.youcode.lineperm.service.UserService;
 
@@ -24,7 +22,7 @@ public class Console {
         userService.loadUsers();
 
         while (!input.equals("exit")) {
-            String[] parts = input.split(" ", 2);
+            String[] parts = input.split(" ");
 
             if (parts.length == 1) {
 
@@ -36,20 +34,26 @@ public class Console {
                         System.out.println("=================");
 
                         signup(scanner);
-                        break;
-                    case "login":
 
+                    case "login":
+                        System.out.println("=================");
                         System.out.print("login \n");
+                        System.out.println("=================");
                         login(scanner);
 
                         break;
                     case "help":
+                        System.out.println("=================");
                         System.out.print("help your self \n");
+                        System.out.println("=================");
 
                         break;
 
                     case "logout":
                         logout();
+                        break;
+                    case "ls":
+                        ls();
                         break;
 
                     default:
@@ -57,14 +61,27 @@ public class Console {
                         break;
                 }
 
-            } else {
+            } else if (parts.length == 2) {
                 String commande = parts[0];
                 String fileName = parts[1];
 
                 switch (commande) {
                     case "touch":
-                        createfile();
+                        createfile(fileName);
 
+                        break;
+                    case "nano":
+                        nano(fileName);
+                        break;
+
+                    case "ls":
+                        System.out.println("comming soon");
+
+                        String option = parts[1];
+                        break;
+
+                    case "cat":
+                        System.out.println("comming soon");
                         break;
 
                     default:
@@ -72,6 +89,20 @@ public class Console {
                         break;
                 }
 
+            } else if (parts.length == 3) {
+                String commande = parts[0];
+                String droits = parts[1];
+                String fileName = parts[2];
+
+                switch (commande) {
+                    case "chmoud":
+                        System.out.println("chmoud thinks");
+
+                        break;
+
+                    default:
+                        break;
+                }
             }
 
             if (userService.isAuth) {
@@ -144,14 +175,30 @@ public class Console {
 
     }
 
-    public static void createfile() {
-        if(userService.isAuth){
-        fileService.createFile();
-        }
-        else{
+    public static void createfile(String fileName) {
+        if (userService.isAuth) {
+
+            fileService.createFile(fileName);
+        } else {
             System.out.println("you are not connected ::!!!");
         }
 
+    }
+
+    public static void nano(String fileName) {
+        if (userService.isAuth) {
+            fileService.nano(fileName);
+        } else {
+            System.out.println("your are not connected");
+        }
+    }
+
+    public static void ls() {
+        if (!userService.isAuth) {
+            System.out.println("your are not connected !!");
+            return;
+        }
+        fileService.ls();
     }
 
 }
