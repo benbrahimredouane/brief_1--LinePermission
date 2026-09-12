@@ -1,5 +1,7 @@
 package ma.youcode.lineperm.ui;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Scanner;
 
 import ma.youcode.lineperm.service.FileService;
@@ -78,15 +80,14 @@ public class Console {
                         break;
 
                     case "ls":
-                        System.out.println("comming soon");
-
+                        
                         String option = parts[1];
                         listwithpermition(option);
                         break;
 
                     case "cat":
                         cat(fileName);
-                        // System.out.println("comming soon");
+
                         break;
 
                     default:
@@ -96,12 +97,12 @@ public class Console {
 
             } else if (parts.length == 3) {
                 String commande = parts[0];
-                String droits = parts[1];
+                String droit = parts[1];
                 String fileName = parts[2];
 
                 switch (commande) {
-                    case "chmoud":
-                        chmoud(droits , fileName);
+                    case "chmod":
+                        chmod(droit, fileName);
 
                         break;
 
@@ -150,8 +151,8 @@ public class Console {
 
     public static void login(Scanner scanner) {
         // if (userService.isAuth) {
-        //     System.out.println("allredy loged in !!");
-        //     return;
+        // System.out.println("allredy loged in !!");
+        // return;
         // }
         System.out.print("name:");
         String name = scanner.nextLine();
@@ -214,15 +215,23 @@ public class Console {
         fileService.cat(fileName);
 
     }
-    public static void listwithpermition(String option){
-    if(option.equals("-l")){
-    fileService.listWithPermision();
-    }
+
+    public static void listwithpermition(String option) {
+        if (option.equals("-l")) {
+            fileService.listWithPermision();
+        }
 
     }
-    public static void chmoud(String droit, String fileName){
-        fileService.chmoud(droit,fileName);
+
+    public static void chmod(String droit, String fileName) {
+        if (!userService.isAuth) {
+            System.out.println("your are not connected !!");
+            return;
+        }
         
+        fileService.chmod(droit, fileName);
+
     }
+
 
 }

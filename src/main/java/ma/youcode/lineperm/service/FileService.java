@@ -8,6 +8,7 @@ import java.nio.file.Path;
 
 import ma.youcode.lineperm.model.BriefFile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -17,6 +18,7 @@ import java.io.File;
 public class FileService {
 
     UserService userService = new UserService();
+
     private HashMap<String, String> filesOwners = new HashMap<>();
 
     public void createFile(String fileName) {
@@ -39,11 +41,13 @@ public class FileService {
         filesOwners.put(fileName, owner);
         file.setPermition("---");
 
+        BriefFile bfile = new BriefFile(owner);
+
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\fileOwners.txt", true);
 
             String permition = file.getPermition();
-            writer.write(fileName + ":" + owner + ":" + permition +"\n");
+            writer.write(owner + ":" + fileName + ":" + permition + "\n");
             writer.close();
 
         } catch (IOException e) {
@@ -55,7 +59,18 @@ public class FileService {
     }
 
     public void nano(String fileName) {
-        
+        String logedUser = userService.getCurrentUser().getName();
+        String[] parts = findFileRecord(fileName);
+        if(parts == null){
+            System.out.println("file not found");
+        }
+        String owner = parts[0];
+        String permition = parts[2];
+
+        if(!owner.equals(logedUser) && permition.charAt(0) != 'w'){
+            System.out.println("not allowed");
+            return;
+        }
 
         Scanner scanner = new Scanner(System.in);
 
@@ -125,7 +140,7 @@ public class FileService {
                 String fileName = parts[1];
                 String permition = parts[2];
 
-                System.out.println("rwd | " + permition+ " " + owner + " " + fileName);
+                System.out.println("rwd | " + permition + " " + owner + " " + fileName);
 
             }
 
@@ -136,9 +151,21 @@ public class FileService {
     }
 
     public void cat(String fileName) {
+        String logedUser = userService.getCurrentUser().getName();
+        String[] parts = findFileRecord(fileName);
+        if(parts == null){
+            System.out.println("file not found");
+        }
+        String owner = parts[0];
+        String permition = parts[2];
+
+        if(!owner.equals(logedUser) && permition.charAt(0) != 'r'){
+            System.out.println("not allowed");
+            return;
+        }
 
         File file1 = new File("src\\main\\resources\\filesStorage\\" + fileName);
-        if (file1.length() == 0){
+        if (file1.length() == 0) {
             System.out.println("(this file is empty)");
         }
         try {
@@ -152,12 +179,86 @@ public class FileService {
         }
 
     }
-    public void chmoud(String droit ,String fileName){
-        System.out.println(droit);
-        System.out.println(fileName);
-        
 
+    public void chmod(String droit, String fileName) {
+        String logeduser = userService.getCurrentUser().getName();
+        String[] parts = findFileRecord(fileName);
+        String owner = parts[0];
+        String permition = parts[2];
 
+        if (!owner.equals(logeduser)) {
+            System.out.println("that is not your file to change permition");
+            return;
+        }
+
+        char[] chars = permition.toCharArray();
+        switch (droit) {
+            case "r":
+                chars[0] = 'r';
+                break;
+            case "w":
+                chars[1] = 'w';
+                chars[0] = 'r';
+                break;
+            case "-r":
+                chars[0] = '-';
+                break;
+            case "-w":
+                chars[1] = '-';
+                chars[0] = '-';
+                break;
+            default:
+                System.out.println("invalide permition");
+                return;
+
+        }
+        String newPer = new String(chars);
+        updatePermition(fileName, newPer);
+        System.out.println(fileName + " : rwd|"+permition + " -> rwd|" + newPer);
+
+    }
+
+    private String[] findFileRecord(String fileName) {
+        try {
+            Path path = Path.of("src\\main\\resources\\fileOwners.txt");
+            if (!Files.exists(path))
+                return null;
+
+            List<String> lines = Files.readAllLines(path);
+            for (String line : lines) {
+                String[] parts = line.split(":");
+                if (parts[1].equals(fileName)) {
+                    return parts;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("failed to open and read that file records ");
+
+        }
+        return null;
+    }
+
+    private void updatePermition(String fileName , String newPermition){
+        try{
+            Path path = Path.of("src\\main\\resources\\fileOwners.txt");
+
+            List<String> lines = Files.readAllLines(path);
+            List<String> updatedlines = new ArrayList<>();
+
+            for(String line : lines){
+                String[] parts = line.split(":");
+                if(parts[1].equals(fileName)){
+                    updatedlines.add(parts[0] + ":" + parts[1] + ":" + newPermition);
+                }
+                else{
+                    updatedlines.add(line);
+                }
+            }
+            Files.write(path,updatedlines);
+        }
+        catch(IOException e){
+            System.out.println("could not update the permition" + e.getMessage());
+        }
     }
 
 }

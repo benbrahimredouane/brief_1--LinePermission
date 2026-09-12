@@ -4,6 +4,8 @@ public class BriefFile {
 
     private String owner;
     private String permition;
+    private String fileName;
+
 
     public BriefFile(String owner) {
 
@@ -23,5 +25,14 @@ public class BriefFile {
     public void setPermition(String permition) {
         this.permition = permition;
     }
+    
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+  
 
 }
