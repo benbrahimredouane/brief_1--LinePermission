@@ -1,7 +1,7 @@
 package ma.youcode.lineperm.ui;
 
-import java.io.IOException;
-import java.nio.file.Files;
+// import java.io.IOException;
+// import java.nio.file.Files;
 import java.util.Scanner;
 
 import ma.youcode.lineperm.service.FileService;
@@ -17,9 +17,11 @@ public class Console {
         String input = scanner.nextLine();
 
         input = input.trim().toLowerCase();
+
         if (input.equals("exit")) {
             System.out.print("bye");
         }
+        input = input.trim().toLowerCase();
 
         userService.loadUsers();
 
@@ -80,7 +82,7 @@ public class Console {
                         break;
 
                     case "ls":
-                        
+
                         String option = parts[1];
                         listwithpermition(option);
                         break;
@@ -109,10 +111,12 @@ public class Console {
                     default:
                         break;
                 }
+            } else {
+                System.out.println("invalid command");
             }
 
-            if (userService.isAuth) {
-                System.out.print(userService.getCurrentUser().getName() + "@lineperm> ");
+            if (UserService.isAuth) {
+                System.out.print(UserService.getCurrentUser().getName() + "@lineperm> ");
             } else {
                 System.out.print("lineperm>");
             }
@@ -150,10 +154,10 @@ public class Console {
     }
 
     public static void login(Scanner scanner) {
-        // if (userService.isAuth) {
-        // System.out.println("allredy loged in !!");
-        // return;
-        // }
+        if (UserService.isAuth) {
+            System.out.println("allready loged in !!");
+            return;
+        }
         System.out.print("name:");
         String name = scanner.nextLine();
 
@@ -162,9 +166,9 @@ public class Console {
 
         userService.login(name, code);
 
-        if (userService.isAuth) {
+        if (UserService.isAuth) {
             System.out.println("Login succesuly::::");
-            System.out.println("welcome " + userService.getCurrentUser().getName());
+            System.out.println("welcome " + UserService.getCurrentUser().getName());
 
         } else {
             System.out.println("wrong name or password!");
@@ -172,17 +176,12 @@ public class Console {
     }
 
     public static void logout() {
-        if (!userService.isAuth) {
-            System.out.println("your are not connected to do that");
-            return;
-        }
-        System.out.print("loging out ... \n");
-        userService.isAuth = false;
+      userService.logout();
 
     }
 
     public static void createfile(String fileName) {
-        if (userService.isAuth) {
+        if (UserService.isAuth) {
 
             fileService.createFile(fileName);
         } else {
@@ -192,7 +191,7 @@ public class Console {
     }
 
     public static void nano(String fileName) {
-        if (userService.isAuth) {
+        if (UserService.isAuth) {
             fileService.nano(fileName);
         } else {
             System.out.println("your are not connected");
@@ -200,7 +199,7 @@ public class Console {
     }
 
     public static void ls() {
-        if (!userService.isAuth) {
+        if (!UserService.isAuth) {
             System.out.println("your are not connected !!");
             return;
         }
@@ -208,7 +207,7 @@ public class Console {
     }
 
     public static void cat(String fileName) {
-        if (!userService.isAuth) {
+        if (!UserService.isAuth) {
             System.out.println("your are not connected !!");
             return;
         }
@@ -224,14 +223,13 @@ public class Console {
     }
 
     public static void chmod(String droit, String fileName) {
-        if (!userService.isAuth) {
+        if (!UserService.isAuth) {
             System.out.println("your are not connected !!");
             return;
         }
-        
+
         fileService.chmod(droit, fileName);
 
     }
-
 
 }
