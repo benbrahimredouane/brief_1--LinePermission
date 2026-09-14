@@ -31,11 +31,7 @@ public class UserService {
         String pass = BCrypt.hashpw(code, BCrypt.gensalt());
 
         User user = new User(name, pass);
-        // System.out.println(user);
-
-        users.put(name, pass);
-
-        // System.out.println(users);
+  
 
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\users.txt", true);
@@ -49,6 +45,7 @@ public class UserService {
         } catch (IOException e) {
             System.out.println("Error saving user.");
         }
+        users.put(name, pass);
         currentUser = user;
         System.out.println("Welcome " + currentUser.getName());
         isAuth = true;
@@ -71,7 +68,17 @@ public class UserService {
         }
     }
 
-    public User getCurrentUser() {
+    public void logout() {
+        // System.out.println(isAuth);
+        if (!isAuth) {
+            System.out.println("your are not connected to do that");
+            return;
+        }
+        System.out.print("loging out ... \n");
+        isAuth = false;
+    }
+
+    public static User getCurrentUser() {
         return currentUser;
     }
 

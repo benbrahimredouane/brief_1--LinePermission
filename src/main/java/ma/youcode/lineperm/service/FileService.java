@@ -22,15 +22,16 @@ public class FileService {
     private HashMap<String, String> filesOwners = new HashMap<>();
 
     public void createFile(String fileName) {
-        System.out.println(userService.isAuth);
-        System.out.println(userService.getCurrentUser().getName());
+        // System.out.println(UserService.isAuth);
+        // System.out.println(UserService.getCurrentUser().getName());
 
-        String owner = userService.getCurrentUser().getName();
+        String owner = UserService.getCurrentUser().getName();
 
         System.out.println("creating file ....");
 
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\filesStorage\\" + fileName, true);
+            writer.close();
 
         } catch (FileNotFoundException e) {
             System.out.println("File path not found");
@@ -38,10 +39,12 @@ public class FileService {
             System.out.println("Error saving FILE.");
         }
         BriefFile file = new BriefFile(owner);
+        file.setFileName(fileName);
+        
         filesOwners.put(fileName, owner);
         file.setPermition("---");
 
-        BriefFile bfile = new BriefFile(owner);
+        // BriefFile bfile = new BriefFile(owner);
 
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\fileOwners.txt", true);
@@ -59,10 +62,12 @@ public class FileService {
     }
 
     public void nano(String fileName) {
-        String logedUser = userService.getCurrentUser().getName();
+        String logedUser = UserService.getCurrentUser().getName();
         String[] parts = findFileRecord(fileName);
+        
         if(parts == null){
             System.out.println("file not found");
+            return;
         }
         String owner = parts[0];
         String permition = parts[2];
@@ -87,10 +92,8 @@ public class FileService {
 
         }
 
-        // System.out.println(sc);
-        // scanner.close();
         try {
-            // FileWriter writer = new FileWriter("",true)
+            
             FileWriter writer = new FileWriter("src\\main\\resources\\filesStorage\\" + fileName, true);
             writer.write(sc.toString());
             writer.close();
@@ -151,7 +154,7 @@ public class FileService {
     }
 
     public void cat(String fileName) {
-        String logedUser = userService.getCurrentUser().getName();
+        String logedUser = UserService.getCurrentUser().getName();
         String[] parts = findFileRecord(fileName);
         if(parts == null){
             System.out.println("file not found");
@@ -181,7 +184,7 @@ public class FileService {
     }
 
     public void chmod(String droit, String fileName) {
-        String logeduser = userService.getCurrentUser().getName();
+        String logeduser = UserService.getCurrentUser().getName();
         String[] parts = findFileRecord(fileName);
         String owner = parts[0];
         String permition = parts[2];
@@ -202,10 +205,11 @@ public class FileService {
                 break;
             case "-r":
                 chars[0] = '-';
+                chars[1] = '-';
                 break;
             case "-w":
                 chars[1] = '-';
-                chars[0] = '-';
+                // chars[0] = '-';
                 break;
             default:
                 System.out.println("invalide permition");
