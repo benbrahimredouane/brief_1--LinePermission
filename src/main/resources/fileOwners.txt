@@ -1,0 +1,4 @@
+redouane:per.txt:---
+bader:test.txt:r--
+bader:test1.txt:---
+moha:mohafile.txt:rw-

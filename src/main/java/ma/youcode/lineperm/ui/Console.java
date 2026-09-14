@@ -1,10 +1,15 @@
 package ma.youcode.lineperm.ui;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Scanner;
+
+import ma.youcode.lineperm.service.FileService;
 import ma.youcode.lineperm.service.UserService;
 
 public class Console {
     public static UserService userService = new UserService();
+    public static FileService fileService = new FileService();
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
@@ -19,36 +24,91 @@ public class Console {
         userService.loadUsers();
 
         while (!input.equals("exit")) {
+            String[] parts = input.split(" ");
 
-            switch (input) {
-                case "signup":
+            if (parts.length == 1) {
 
-                    System.out.println("=================");
-                    System.out.print("signup \n");
-                    System.out.println("=================");
+                switch (input) {
+                    case "signup":
 
-                    signup(scanner);
-                    break;
-                case "login":
+                        System.out.println("=================");
+                        System.out.print("signup \n");
+                        System.out.println("=================");
 
-                    System.out.print("login \n");
-                    login(scanner);
+                        signup(scanner);
+                        break;
 
-                    break;
-                case "help":
-                    System.out.print("help your self \n");
+                    case "login":
+                        System.out.println("=================");
+                        System.out.print("login \n");
+                        System.out.println("=================");
+                        login(scanner);
 
-                    break;
+                        break;
+                    case "help":
+                        System.out.println("=================");
+                        System.out.print("help your self \n");
+                        System.out.println("=================");
 
-                case "logout":
-                    System.out.print("loging out ... \n");
-                    userService.isAuth = false;
+                        break;
 
-                    break;
+                    case "logout":
+                        System.out.println("=================");
+                        logout();
+                        System.out.println("=================");
+                        break;
+                    case "ls":
+                        ls();
+                        break;
 
-                default:
-                    System.out.print("invalide input  \n");
-                    break;
+                    default:
+                        System.out.print("invalide input  \n");
+                        break;
+                }
+
+            } else if (parts.length == 2) {
+                String commande = parts[0];
+                String fileName = parts[1];
+
+                switch (commande) {
+                    case "touch":
+                        createfile(fileName);
+
+                        break;
+                    case "nano":
+                        nano(fileName);
+                        break;
+
+                    case "ls":
+                        
+                        String option = parts[1];
+                        listwithpermition(option);
+                        break;
+
+                    case "cat":
+                        cat(fileName);
+
+                        break;
+
+                    default:
+                        System.out.println("invalide commannde");
+                        break;
+                }
+
+            } else if (parts.length == 3) {
+                String commande = parts[0];
+                String droit = parts[1];
+                String fileName = parts[2];
+
+                switch (commande) {
+                    case "chmod":
+                        chmod(droit, fileName);
+
+                        break;
+
+                    default:
+                        break;
+                }
             }
 
             if (userService.isAuth) {
@@ -73,6 +133,7 @@ public class Console {
         String name = scanner.nextLine();
 
         if (name.isEmpty()) {
+            System.out.println("that name is empty");
             return;
         }
 
@@ -80,6 +141,7 @@ public class Console {
         String code = scanner.nextLine();
 
         if (code.isEmpty() || code.length() < 4) {
+            System.out.println("that code is unvalide");
             return;
         }
 
@@ -88,6 +150,10 @@ public class Console {
     }
 
     public static void login(Scanner scanner) {
+        // if (userService.isAuth) {
+        // System.out.println("allredy loged in !!");
+        // return;
+        // }
         System.out.print("name:");
         String name = scanner.nextLine();
 
@@ -104,5 +170,68 @@ public class Console {
             System.out.println("wrong name or password!");
         }
     }
+
+    public static void logout() {
+        if (!userService.isAuth) {
+            System.out.println("your are not connected to do that");
+            return;
+        }
+        System.out.print("loging out ... \n");
+        userService.isAuth = false;
+
+    }
+
+    public static void createfile(String fileName) {
+        if (userService.isAuth) {
+
+            fileService.createFile(fileName);
+        } else {
+            System.out.println("you are not connected ::!!!");
+        }
+
+    }
+
+    public static void nano(String fileName) {
+        if (userService.isAuth) {
+            fileService.nano(fileName);
+        } else {
+            System.out.println("your are not connected");
+        }
+    }
+
+    public static void ls() {
+        if (!userService.isAuth) {
+            System.out.println("your are not connected !!");
+            return;
+        }
+        fileService.ls();
+    }
+
+    public static void cat(String fileName) {
+        if (!userService.isAuth) {
+            System.out.println("your are not connected !!");
+            return;
+        }
+        fileService.cat(fileName);
+
+    }
+
+    public static void listwithpermition(String option) {
+        if (option.equals("-l")) {
+            fileService.listWithPermision();
+        }
+
+    }
+
+    public static void chmod(String droit, String fileName) {
+        if (!userService.isAuth) {
+            System.out.println("your are not connected !!");
+            return;
+        }
+        
+        fileService.chmod(droit, fileName);
+
+    }
+
 
 }
