@@ -47,6 +47,13 @@ public class Console {
                         login(scanner);
 
                         break;
+                    case "stats":
+                        System.out.println("=================");
+                        System.out.print("stats \n");
+                        System.out.println("=================");
+                        stats();
+
+                        break;
                     case "help":
                         System.out.println("=================");
                         System.out.print("help your self \n");
@@ -176,7 +183,7 @@ public class Console {
     }
 
     public static void logout() {
-      userService.logout();
+        userService.logout();
 
     }
 
@@ -229,6 +236,12 @@ public class Console {
         }
 
         fileService.chmod(droit, fileName);
+
+    }
+
+    public static void stats() {
+        Analyzer analyzer = new Analyzer();
+        analyzer.start();
 
     }
 
