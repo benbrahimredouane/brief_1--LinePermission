@@ -11,7 +11,6 @@ import ma.youcode.lineperm.model.Log.Action;
 import ma.youcode.lineperm.model.Log.Status;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -48,8 +47,6 @@ public class FileService {
         filesOwners.put(fileName, owner);
         file.setPermition("---");
 
-        // BriefFile bfile = new BriefFile(owner);
-
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\fileOwners.txt", true);
 
@@ -78,14 +75,15 @@ public class FileService {
 
         if (!owner.equals(logedUser) && permition.charAt(0) != 'w') {
             System.out.println("not allowed");
-            // save to action
+            logService.addLog(logedUser, fileName, Action.ECRITURE, Status.REFUSE);
             return;
         }
 
+        logService.addLog(logedUser, fileName, Action.ECRITURE, Status.OK);
         Scanner scanner = new Scanner(System.in);
 
         StringBuilder sc = new StringBuilder();
-        System.out.println("mode modifie activer : ============================ : ");
+        System.out.println(" : =============:::mode modifie activer:::============== : ");
 
         while (true) {
             String text = scanner.nextLine();
@@ -219,7 +217,7 @@ public class FileService {
                 break;
             case "-w":
                 chars[1] = '-';
-                // chars[0] = '-';
+
                 break;
             default:
                 System.out.println("invalide permition");

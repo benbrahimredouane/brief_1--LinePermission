@@ -2,9 +2,14 @@ package ma.youcode.lineperm.ui;
 
 import java.util.Scanner;
 
+import ma.youcode.lineperm.service.LogService;
+
 public class Analyzer {
+    private LogService logservice = new LogService();
+
     public void start() {
 
+        LogService.loadLogs();
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("welcome to the stats part chose an option by its number");
@@ -28,14 +33,16 @@ public class Analyzer {
 
             return;
         }
+
         while (number != 0) {
 
             switch (number) {
                 case 1:
-                    System.out.println("you chose 1");
+                    logservice.countallactions();
                     break;
                 case 2:
-                    System.out.println("you chose 2");
+                    logservice.countrefusedactions();
+                    
 
                     break;
                 case 3:
