@@ -25,7 +25,7 @@ public class Analyzer {
         int number = scanner.nextInt();
         if (number == 0) {
             System.out.println("Au revoir ! analyzeur team");
-          
+
             return;
         }
         while (number != 0) {
@@ -62,10 +62,11 @@ public class Analyzer {
 
                     break;
                 case 0:
-                    System.out.println("bay analyzeur");
+                    System.out.println("Au revoir Analyzer");
                     break;
 
                 default:
+                    System.out.println("invalid choix");
                     break;
             }
             System.out.println("1) Number of total actions");
@@ -82,7 +83,7 @@ public class Analyzer {
             number = scanner.nextInt();
 
         }
-        
+
     }
 
 }

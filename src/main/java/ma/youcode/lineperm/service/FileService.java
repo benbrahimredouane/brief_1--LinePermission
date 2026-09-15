@@ -7,8 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import ma.youcode.lineperm.model.BriefFile;
+import ma.youcode.lineperm.model.Log.Action;
+import ma.youcode.lineperm.model.Log.Status;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -18,6 +21,7 @@ import java.io.File;
 public class FileService {
 
     UserService userService = new UserService();
+    LogService logService = new LogService();
 
     private HashMap<String, String> filesOwners = new HashMap<>();
 
@@ -40,7 +44,7 @@ public class FileService {
         }
         BriefFile file = new BriefFile(owner);
         file.setFileName(fileName);
-        
+
         filesOwners.put(fileName, owner);
         file.setPermition("---");
 
@@ -64,16 +68,17 @@ public class FileService {
     public void nano(String fileName) {
         String logedUser = UserService.getCurrentUser().getName();
         String[] parts = findFileRecord(fileName);
-        
-        if(parts == null){
+
+        if (parts == null) {
             System.out.println("file not found");
             return;
         }
         String owner = parts[0];
         String permition = parts[2];
 
-        if(!owner.equals(logedUser) && permition.charAt(0) != 'w'){
+        if (!owner.equals(logedUser) && permition.charAt(0) != 'w') {
             System.out.println("not allowed");
+            // save to action
             return;
         }
 
@@ -94,7 +99,7 @@ public class FileService {
         scanner.close();
 
         try {
-            
+
             FileWriter writer = new FileWriter("src\\main\\resources\\filesStorage\\" + fileName, true);
             writer.write(sc.toString());
             writer.close();
@@ -157,16 +162,20 @@ public class FileService {
     public void cat(String fileName) {
         String logedUser = UserService.getCurrentUser().getName();
         String[] parts = findFileRecord(fileName);
-        if(parts == null){
+        if (parts == null) {
             System.out.println("file not found");
         }
         String owner = parts[0];
         String permition = parts[2];
 
-        if(!owner.equals(logedUser) && permition.charAt(0) != 'r'){
+        if (!owner.equals(logedUser) && permition.charAt(0) != 'r') {
             System.out.println("not allowed");
+
+            logService.addLog(logedUser, fileName, Action.LECTURE, Status.REFUSE);
             return;
         }
+
+        logService.addLog(logedUser, fileName, Action.LECTURE, Status.OK);
 
         File file1 = new File("src\\main\\resources\\filesStorage\\" + fileName);
         if (file1.length() == 0) {
@@ -219,7 +228,7 @@ public class FileService {
         }
         String newPer = new String(chars);
         updatePermition(fileName, newPer);
-        System.out.println(fileName + " : rwd|"+permition + " -> rwd|" + newPer);
+        System.out.println(fileName + " : rwd|" + permition + " -> rwd|" + newPer);
 
     }
 
@@ -243,25 +252,23 @@ public class FileService {
         return null;
     }
 
-    private void updatePermition(String fileName , String newPermition){
-        try{
+    private void updatePermition(String fileName, String newPermition) {
+        try {
             Path path = Path.of("src\\main\\resources\\fileOwners.txt");
 
             List<String> lines = Files.readAllLines(path);
             List<String> updatedlines = new ArrayList<>();
 
-            for(String line : lines){
+            for (String line : lines) {
                 String[] parts = line.split(":");
-                if(parts[1].equals(fileName)){
+                if (parts[1].equals(fileName)) {
                     updatedlines.add(parts[0] + ":" + parts[1] + ":" + newPermition);
-                }
-                else{
+                } else {
                     updatedlines.add(line);
                 }
             }
-            Files.write(path,updatedlines);
-        }
-        catch(IOException e){
+            Files.write(path, updatedlines);
+        } catch (IOException e) {
             System.out.println("could not update the permition" + e.getMessage());
         }
     }
