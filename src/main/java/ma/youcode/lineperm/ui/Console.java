@@ -58,6 +58,7 @@ public class Console {
                         System.out.println("=================");
                         System.out.print("help your self \n");
                         System.out.println("=================");
+                        help();
 
                         break;
 
@@ -243,6 +244,18 @@ public class Console {
         Analyzer analyzer = new Analyzer();
         analyzer.start();
 
+    }
+    private void help(){
+        if(!UserService.isAuth){
+            System.out.println("signup");
+            System.out.println("login");
+
+        }
+        else{
+            System.out.println("cat ");
+            System.out.println("nano");
+            System.out.println("touch");
+        }
     }
 
 }

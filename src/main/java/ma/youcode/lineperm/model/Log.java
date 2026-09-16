@@ -1,7 +1,7 @@
 package ma.youcode.lineperm.model;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
-
 
 public class Log {
 
@@ -15,13 +15,15 @@ public class Log {
         REFUSE
     }
 
+    private LocalDate date;
     private LocalTime time;
     private String ownerFile;
     private String fileName;
     private Action action;
     private Status status;
 
-    public Log(LocalTime time, String ownerFile, String fileName, Action action, Status status) {
+    public Log(LocalDate date, LocalTime time, String ownerFile, String fileName, Action action, Status status) {
+        this.date = date;
         this.time = time;
         this.ownerFile = ownerFile;
         this.fileName = fileName;
@@ -29,10 +31,13 @@ public class Log {
         this.status = status;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
+
     public LocalTime getTime() {
         return time;
     }
-
 
     public String getOwnerFile() {
         return ownerFile;

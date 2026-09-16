@@ -5,6 +5,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 import ma.youcode.lineperm.model.BriefFile;
 import ma.youcode.lineperm.model.Log.Action;
@@ -22,15 +25,22 @@ public class FileService {
     UserService userService = new UserService();
     LogService logService = new LogService();
 
-    private HashMap<String, String> filesOwners = new HashMap<>();
+    private static HashMap<String, BriefFile> filesOwners = new HashMap<>();
+
+    public void loadFiles() {
+
+    }
 
     public void createFile(String fileName) {
-        // System.out.println(UserService.isAuth);
-        // System.out.println(UserService.getCurrentUser().getName());
 
         String owner = UserService.getCurrentUser().getName();
 
         System.out.println("creating file ....");
+
+        if (findFileRecord(fileName) != null) {
+            System.out.println("file allredy exists");
+            return;
+        }
 
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\filesStorage\\" + fileName, true);
@@ -43,9 +53,8 @@ public class FileService {
         }
         BriefFile file = new BriefFile(owner);
         file.setFileName(fileName);
-
-        filesOwners.put(fileName, owner);
         file.setPermition("---");
+        filesOwners.put(fileName, file);
 
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\fileOwners.txt", true);
@@ -65,6 +74,8 @@ public class FileService {
     public void nano(String fileName) {
         String logedUser = UserService.getCurrentUser().getName();
         String[] parts = findFileRecord(fileName);
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
 
         if (parts == null) {
             System.out.println("file not found");
@@ -75,11 +86,12 @@ public class FileService {
 
         if (!owner.equals(logedUser) && permition.charAt(0) != 'w') {
             System.out.println("not allowed");
-            logService.addLog(logedUser, fileName, Action.ECRITURE, Status.REFUSE);
+
+            logService.addLog(date, time, logedUser, fileName, Action.ECRITURE, Status.REFUSE);
             return;
         }
 
-        logService.addLog(logedUser, fileName, Action.ECRITURE, Status.OK);
+        logService.addLog(date, time, logedUser, fileName, Action.ECRITURE, Status.OK);
         Scanner scanner = new Scanner(System.in);
 
         StringBuilder sc = new StringBuilder();
@@ -160,8 +172,12 @@ public class FileService {
     public void cat(String fileName) {
         String logedUser = UserService.getCurrentUser().getName();
         String[] parts = findFileRecord(fileName);
+
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
         if (parts == null) {
             System.out.println("file not found");
+            return;
         }
         String owner = parts[0];
         String permition = parts[2];
@@ -169,11 +185,11 @@ public class FileService {
         if (!owner.equals(logedUser) && permition.charAt(0) != 'r') {
             System.out.println("not allowed");
 
-            logService.addLog(logedUser, fileName, Action.LECTURE, Status.REFUSE);
+            logService.addLog(date, time, logedUser, fileName, Action.LECTURE, Status.REFUSE);
             return;
         }
 
-        logService.addLog(logedUser, fileName, Action.LECTURE, Status.OK);
+        logService.addLog(date, time, logedUser, fileName, Action.LECTURE, Status.OK);
 
         File file1 = new File("src\\main\\resources\\filesStorage\\" + fileName);
         if (file1.length() == 0) {
@@ -186,7 +202,7 @@ public class FileService {
                 System.out.println(sc.nextLine());
             }
         } catch (Exception e) {
-            System.out.println("cant read file");
+            System.out.println("can't read file");
         }
 
     }
@@ -194,6 +210,10 @@ public class FileService {
     public void chmod(String droit, String fileName) {
         String logeduser = UserService.getCurrentUser().getName();
         String[] parts = findFileRecord(fileName);
+        if (parts == null) {
+            System.out.println("file not found");
+            return;
+        }
         String owner = parts[0];
         String permition = parts[2];
 

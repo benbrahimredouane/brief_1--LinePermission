@@ -2,3 +2,6 @@ bader:test.txt:r--
 bader:test1.txt:---
 moha:mohafile.txt:rw-
 redouane:test999.txt:---
+bader:test.txt:---
+abdelaziz:test.txt:---
+abdelaziz:test100.txt:---

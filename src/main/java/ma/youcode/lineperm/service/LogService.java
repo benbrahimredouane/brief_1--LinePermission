@@ -10,22 +10,41 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import ma.youcode.lineperm.model.Log;
 import ma.youcode.lineperm.model.Log.*;
 
 public class LogService {
 
-    static List<String> logs = new ArrayList<>();
+    static List<Log> logs = new ArrayList<>();
 
     public static void loadLogs() {
+        logs.clear();
         try {
             Path path = Path.of("src\\main\\resources\\actions.log");
             if (!Files.exists(path)) {
                 System.out.println("file not found");
+                return;
             }
             List<String> lines = Files.readAllLines(path);
-            lines.forEach(line -> logs.add(line));
+            // lines.forEach(line -> logs.add(line));
+            for (String line : lines) {
+                String[] parts = line.split(";", 6);
+
+                // date, time, ownerFile, fileName, action, status
+                // 2026-09-15;17:33;redouane;test1.txt;LECTURE;REFUSE
+
+                LocalDate date = LocalDate.parse(parts[0]);
+                LocalTime time = LocalTime.parse(parts[1]);
+                Action action = Action.valueOf(parts[4]);
+                Status status = Status.valueOf(parts[5]);
+
+                logs.add(new Log(date, time, parts[2], parts[3], action, status));
+
+            }
 
         } catch (IOException e) {
             System.out.println("ereur loading files");
@@ -34,20 +53,15 @@ public class LogService {
 
     }
 
-    public void addLog(String ownerFile, String fileName,
+    public void addLog(LocalDate date, LocalTime time, String ownerFile, String fileName,
             Action action, Status status) {
 
-        // Log log = new Log(
-        // LocalTime.now(),
-        // ownerFile,
-        // fileName,
-        // Log.Action.LECTURE,
-        // Log.Status.OK);
+        Log log = new Log(date, time, ownerFile, fileName, action, status);
 
         StringBuilder Log = new StringBuilder();
-        Log.append(LocalDate.now());
+        Log.append(date.now());
         Log.append(";");
-        Log.append(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+        Log.append(time.now().format(DateTimeFormatter.ofPattern("HH:mm")));
         Log.append(";");
 
         Log.append(ownerFile);
@@ -72,7 +86,7 @@ public class LogService {
             System.out.println("something was wrong file not modifiyed");
 
         }
-        logs.add(Log.toString());
+        logs.add(log);
 
     }
 
@@ -81,9 +95,53 @@ public class LogService {
         System.out.println("total actions :" + c);
 
     }
-    public void countrefusedactions(){
-        System.out.println("number refuse: " + logs.stream().filter(log -> log.contains("REFUSE")).count());
-       
+
+    public void countrefusedactions() {
+        System.out
+                .println("number refuse: " + logs.stream().filter(log -> log.getStatus() == Log.Status.REFUSE).count());
+
+    }
+
+    public void usersdisctint() {
+        System.out.println("users disctanct : " + logs.stream().map(log -> log.getOwnerFile()).distinct().toList());
+    }
+
+    public void actionsPerUser() {
+
+        Map<String, Long> countByactions = logs.stream()
+                .collect(Collectors.groupingBy(log -> log.getOwnerFile(), Collectors.counting()));
+
+        countByactions.forEach((name, counter) -> System.out.println(name + "=" + counter));
+
+    }
+
+    public void top3files() {
+
+    }
+
+    public void accesrefusedfromtheuser() {
+
+    }
+
+    public void userwithmostactivites() {
+
+        Map<String, Long> users = logs.stream()
+                .collect(Collectors.groupingBy(log -> log.getOwnerFile(), Collectors.counting()));
+
+        Optional<Map.Entry<String, Long>> topUser = users.entrySet().stream()
+                .max(Map.Entry.comparingByValue());
+
+        topUser.ifPresent(e -> System.out.println("top user:" + e.getKey() + "with" + e.getValue() + "actions"));
+
+    }
+
+    public void actionsbytype() {
+
+        Map<Action, Long> acc = logs.stream()
+                .collect(Collectors.groupingBy(log -> log.getAction(), Collectors.counting()));
+
+        acc.forEach((ac, counter) -> System.out.println(ac + "=" + counter));
+
     }
 
 }

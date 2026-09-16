@@ -42,30 +42,28 @@ public class Analyzer {
                     break;
                 case 2:
                     logservice.countrefusedactions();
-                    
 
                     break;
                 case 3:
-                    System.out.println("you chose 3");
+                    logservice.usersdisctint();
 
                     break;
                 case 4:
-                    System.out.println("you chose 4");
+                    logservice.actionsPerUser();
 
                     break;
                 case 5:
-                    System.out.println("you chose 5");
+                    logservice.top3files();
 
                     break;
                 case 6:
-                    System.out.println("you chose 6");
-
+                    logservice.accesrefusedfromtheuser();
+                    break;
                 case 7:
-                    System.out.println("you chose 7");
-
+                    logservice.userwithmostactivites();
                     break;
                 case 8:
-                    System.out.println("you chose 8");
+                    logservice.actionsbytype();
 
                     break;
                 case 0:
