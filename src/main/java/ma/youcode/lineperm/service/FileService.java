@@ -189,7 +189,7 @@ public class FileService {
             sc.append(text).append(System.lineSeparator());
 
         }
-        scanner.close();
+       
 
         try {
 
