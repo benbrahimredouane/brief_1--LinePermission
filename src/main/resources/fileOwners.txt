@@ -1,4 +1,5 @@
-bader:test.txt:r--
-bader:test1.txt:---
-moha:mohafile.txt:rw-
-redouane:test999.txt:---
+redouane:redouane.txt:---
+redouane:redouane2.txt:---
+hakim:hakim.txt:--d
+hakim:hakim1.txt:rw-
+hakim:hakim2.txt:---

@@ -12,10 +12,11 @@ public class Main {
         System.out.println("Lineperm ? gestions des fichiers & droits");
         System.out.println("==========By Redouane Benbrahim==========");
 
-        System.out.println("non connecte : signup | login | help | exit");
+        System.out.println("non connecte : signup | login | stats | help | exit");
 
         Console console = new Console();
         console.start();
+        
  
 
     }

@@ -17,7 +17,7 @@ import org.mindrot.jbcrypt.BCrypt;
 public class UserService {
 
     public static boolean isAuth = false;
-    private HashMap<String, String> users = new HashMap<>();
+    private HashMap<String, User> users = new HashMap<>();
 
     private static User currentUser;
 
@@ -31,7 +31,6 @@ public class UserService {
         String pass = BCrypt.hashpw(code, BCrypt.gensalt());
 
         User user = new User(name, pass);
-  
 
         try {
             FileWriter writer = new FileWriter("src\\main\\resources\\users.txt", true);
@@ -45,7 +44,7 @@ public class UserService {
         } catch (IOException e) {
             System.out.println("Error saving user.");
         }
-        users.put(name, pass);
+        users.put(name, user);
         currentUser = user;
         System.out.println("Welcome " + currentUser.getName());
         isAuth = true;
@@ -54,10 +53,10 @@ public class UserService {
 
     public void login(String name, String code) {
         if (users.containsKey(name)) {
-            String hashedPassword = users.get(name);
+            User user = users.get(name);
 
-            if (BCrypt.checkpw(code, hashedPassword)) {
-                currentUser = new User(name, hashedPassword);
+            if (BCrypt.checkpw(code, user.getCode())) {
+                currentUser = new User(name, user.getCode());
                 isAuth = true;
 
             } else {
@@ -99,7 +98,9 @@ public class UserService {
                 String name = parts[0];
                 String password = parts[1];
 
-                users.put(name, password);
+                User user = new User(name, password);
+
+                users.put(name, user);
 
             }
 

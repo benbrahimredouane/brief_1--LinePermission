@@ -24,6 +24,7 @@ public class Console {
         input = input.trim().toLowerCase();
 
         userService.loadUsers();
+        fileService.loadFiles();
 
         while (!input.equals("exit")) {
             String[] parts = input.split(" ");
@@ -47,10 +48,18 @@ public class Console {
                         login(scanner);
 
                         break;
+                    case "stats":
+                        System.out.println("=================");
+                        System.out.print("stats \n");
+                        System.out.println("=================");
+                        stats();
+
+                        break;
                     case "help":
                         System.out.println("=================");
                         System.out.print("help your self \n");
                         System.out.println("=================");
+                        help();
 
                         break;
 
@@ -89,6 +98,10 @@ public class Console {
 
                     case "cat":
                         cat(fileName);
+
+                        break;
+                    case "rm":
+                        rm(fileName);
 
                         break;
 
@@ -176,7 +189,7 @@ public class Console {
     }
 
     public static void logout() {
-      userService.logout();
+        userService.logout();
 
     }
 
@@ -230,6 +243,28 @@ public class Console {
 
         fileService.chmod(droit, fileName);
 
+    }
+
+    public static void stats() {
+        Analyzer analyzer = new Analyzer();
+        analyzer.start();
+
+    }
+
+    private void help() {
+        if (!UserService.isAuth) {
+            System.out.println("signup");
+            System.out.println("login");
+
+        } else {
+            System.out.println("cat ");
+            System.out.println("nano");
+            System.out.println("touch");
+        }
+    }
+
+    private void rm(String fileName) {
+        fileService.rm(fileName);
     }
 
 }
