@@ -116,10 +116,24 @@ public class LogService {
     }
 
     public void top3files() {
+        Map<String, Long> files = logs.stream()
+                .collect(Collectors.groupingBy(log -> log.getFileName(), Collectors.counting()));
+
+        files.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .limit(3).forEach(e -> System.out.println(e.getKey() + " " + e.getValue()));
 
     }
 
     public void accesrefusedfromtheuser() {
+
+        Map<String, Long> refusedByUser = logs.stream()
+                .filter(log -> log.getStatus() == Log.Status.REFUSE)
+                .collect(Collectors.groupingBy(
+                        Log::getOwnerFile,
+                        Collectors.counting()));
+
+        refusedByUser.forEach((user, count) -> System.out.println(user + "=>" + count + "refusal"));
 
     }
 

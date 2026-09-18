@@ -24,6 +24,7 @@ public class Console {
         input = input.trim().toLowerCase();
 
         userService.loadUsers();
+        fileService.loadFiles();
 
         while (!input.equals("exit")) {
             String[] parts = input.split(" ");
@@ -97,6 +98,10 @@ public class Console {
 
                     case "cat":
                         cat(fileName);
+
+                        break;
+                    case "rm":
+                        rm(fileName);
 
                         break;
 
@@ -245,17 +250,21 @@ public class Console {
         analyzer.start();
 
     }
-    private void help(){
-        if(!UserService.isAuth){
+
+    private void help() {
+        if (!UserService.isAuth) {
             System.out.println("signup");
             System.out.println("login");
 
-        }
-        else{
+        } else {
             System.out.println("cat ");
             System.out.println("nano");
             System.out.println("touch");
         }
+    }
+
+    private void rm(String fileName) {
+        fileService.rm(fileName);
     }
 
 }

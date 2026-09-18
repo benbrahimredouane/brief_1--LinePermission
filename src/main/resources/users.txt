@@ -5,3 +5,4 @@ lhcen:$2a$10$J7RE9H.M2G7eedyXqNN/R.oWPoIKYPpqJapua61E/qhaZJviNmxGS
 amin:$2a$10$/jPKpRmRM/Zqzk5pQg2rduHXYEd/M5Bi8YDwn4iMUFEX0gAVeFeFS
 moha:$2a$10$2OD0Ha1gdIo6.SZYkcjKnuLN1UI2kYiwRnCvnoed2UCKiRE9YYNYS
 abdelaziz:$2a$10$c56r1R8Iw4toe/ZLZMfsau5vSzgrv1WvFS6VaajVSBR2l/V58Pps6
+hakim:$2a$10$jVWHWS/mIpvrvPZE2fAhvex2juP6.JjTkahwm1/Hfb71W3M/QqKqa

@@ -7,7 +7,8 @@ public class Log {
 
     public enum Action {
         LECTURE,
-        ECRITURE
+        ECRITURE,
+        DELETE
     }
 
     public enum Status {

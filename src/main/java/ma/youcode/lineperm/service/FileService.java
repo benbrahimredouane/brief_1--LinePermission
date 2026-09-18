@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-
+import java.util.stream.Collectors;
 import java.io.File;
 
 public class FileService {
@@ -29,6 +30,26 @@ public class FileService {
 
     public void loadFiles() {
 
+        try {
+            Path path = Path.of("src\\main\\resources\\fileOwners.txt");
+
+            if (!Files.exists(path)) {
+                System.out.println("file not found");
+                return;
+            }
+            List<String> lines = Files.readAllLines(path);
+
+            for (String line : lines) {
+                String[] parts = line.split(":", 3);
+                BriefFile brief = new BriefFile(parts[0], parts[1], parts[2]);
+                filesOwners.put(parts[1], brief);
+
+            }
+
+        } catch (IOException e) {
+            System.out.println("something wrong files not loaded");
+        }
+
     }
 
     public void createFile(String fileName) {
@@ -37,8 +58,10 @@ public class FileService {
 
         System.out.println("creating file ....");
 
-        if (findFileRecord(fileName) != null) {
-            System.out.println("file allredy exists");
+        BriefFile files = filesOwners.get(fileName);
+
+        if (!(files == null)) {
+            System.out.println("file allready exists ");
             return;
         }
 
@@ -51,9 +74,9 @@ public class FileService {
         } catch (IOException e) {
             System.out.println("Error saving FILE.");
         }
-        BriefFile file = new BriefFile(owner);
-        file.setFileName(fileName);
-        file.setPermition("---");
+
+        BriefFile file = new BriefFile(owner, fileName, "---");
+
         filesOwners.put(fileName, file);
 
         try {
@@ -67,22 +90,82 @@ public class FileService {
             System.out.println("could not write to that file");
 
         }
-        return;
+
+    }
+
+    public void rm(String fileName) {
+        BriefFile file = filesOwners.get(fileName);
+
+        if (file == null) {
+            System.out.println("file is not exists");
+            return;
+        }
+        String owner = UserService.getCurrentUser().getName();
+        String fileOwner = file.getOwner();
+        String permition = file.getPermition();
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
+        System.out.println(permition);
+
+        if (!owner.equals(fileOwner)) {
+            if (!permition.contains("d")) {
+                
+                System.out.println("not allowed");
+                logService.addLog(date, time, owner, fileName, Action.DELETE, Status.REFUSE);
+                return;
+            }
+
+        }
+
+        // remove the file
+
+        Path path = Paths.get("src\\main\\resources\\filesStorage\\" + fileName);
+        try {
+            boolean deleted = Files.deleteIfExists(path);
+            if (deleted) {
+                System.out.println("file deleted with succes!");
+                filesOwners.remove(fileName);
+                logService.addLog(date, time, owner, fileName, Action.DELETE, Status.OK);
+
+                try{
+                    Path path2 = Paths.get("src\\main\\resources\\fileOwners.txt");
+                    List<String> updatedLines = Files.readAllLines(path2).stream()
+                    .filter(line-> !line.contains(fileName))
+                    .collect(Collectors.toList());
+
+                    Files.write(path2 , updatedLines);
+                    System.out.println("line removed");
+
+                }
+                catch(IOException e){
+                    System.err.println("Error: "+ e.getMessage());
+                }
+
+            } else {
+                System.out.println("file not deleted because it not exists !!!!!!");
+
+            }
+
+        } catch (IOException e) {
+            System.err.println("failed to delete that file" + e.getMessage());
+        }
 
     }
 
     public void nano(String fileName) {
         String logedUser = UserService.getCurrentUser().getName();
-        String[] parts = findFileRecord(fileName);
-        LocalDate date = LocalDate.now();
-        LocalTime time = LocalTime.now();
+        BriefFile file = filesOwners.get(fileName);
 
-        if (parts == null) {
-            System.out.println("file not found");
+        if (file == null) {
+            System.out.println("file not found ");
             return;
         }
-        String owner = parts[0];
-        String permition = parts[2];
+
+        String owner = file.getOwner();
+        String permition = file.getPermition();
+
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
 
         if (!owner.equals(logedUser) && permition.charAt(0) != 'w') {
             System.out.println("not allowed");
@@ -171,16 +254,18 @@ public class FileService {
 
     public void cat(String fileName) {
         String logedUser = UserService.getCurrentUser().getName();
-        String[] parts = findFileRecord(fileName);
+
+        BriefFile parts = filesOwners.get(fileName);
 
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
+
         if (parts == null) {
             System.out.println("file not found");
             return;
         }
-        String owner = parts[0];
-        String permition = parts[2];
+        String owner = parts.getOwner();
+        String permition = parts.getPermition();
 
         if (!owner.equals(logedUser) && permition.charAt(0) != 'r') {
             System.out.println("not allowed");
@@ -209,13 +294,15 @@ public class FileService {
 
     public void chmod(String droit, String fileName) {
         String logeduser = UserService.getCurrentUser().getName();
-        String[] parts = findFileRecord(fileName);
+
+        BriefFile parts = filesOwners.get(fileName);
+
         if (parts == null) {
             System.out.println("file not found");
             return;
         }
-        String owner = parts[0];
-        String permition = parts[2];
+        String owner = parts.getOwner();
+        String permition = parts.getPermition();
 
         if (!owner.equals(logeduser)) {
             System.out.println("that is not your file to change permition");
@@ -230,6 +317,12 @@ public class FileService {
             case "w":
                 chars[1] = 'w';
                 chars[0] = 'r';
+                break;
+            case "d":
+                chars[2] = 'd';
+                break;
+            case "-d":
+                chars[2] = '-';
                 break;
             case "-r":
                 chars[0] = '-';
@@ -250,25 +343,25 @@ public class FileService {
 
     }
 
-    private String[] findFileRecord(String fileName) {
-        try {
-            Path path = Path.of("src\\main\\resources\\fileOwners.txt");
-            if (!Files.exists(path))
-                return null;
+    // private String[] findFileRecord(String fileName) {
+    // try {
+    // Path path = Path.of("src\\main\\resources\\fileOwners.txt");
+    // if (!Files.exists(path))
+    // return null;
 
-            List<String> lines = Files.readAllLines(path);
-            for (String line : lines) {
-                String[] parts = line.split(":");
-                if (parts[1].equals(fileName)) {
-                    return parts;
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("failed to open and read that file records ");
+    // List<String> lines = Files.readAllLines(path);
+    // for (String line : lines) {
+    // String[] parts = line.split(":");
+    // if (parts[1].equals(fileName)) {
+    // return parts;
+    // }
+    // }
+    // } catch (IOException e) {
+    // System.out.println("failed to open and read that file records ");
 
-        }
-        return null;
-    }
+    // }
+    // return null;
+    // }
 
     private void updatePermition(String fileName, String newPermition) {
         try {
