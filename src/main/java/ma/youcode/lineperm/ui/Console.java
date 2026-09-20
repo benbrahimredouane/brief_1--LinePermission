@@ -18,114 +18,83 @@ public class Console {
 
         input = input.trim().toLowerCase();
 
-        if (input.equals("exit")) {
-            System.out.print("bye");
-        }
-        input = input.trim().toLowerCase();
-
         userService.loadUsers();
         fileService.loadFiles();
-
-        while (!input.equals("exit")) {
+        do {
             String[] parts = input.split(" ");
+            switch (parts[0]) {
+                case "signup":
 
-            if (parts.length == 1) {
+                    System.out.println("=================");
+                    System.out.print("signup \n");
+                    System.out.println("=================");
 
-                switch (input) {
-                    case "signup":
+                    signup(scanner);
+                    break;
 
-                        System.out.println("=================");
-                        System.out.print("signup \n");
-                        System.out.println("=================");
+                case "login":
+                    System.out.println("=================");
+                    System.out.print("login \n");
+                    System.out.println("=================");
+                    login(scanner);
 
-                        signup(scanner);
-                        break;
+                    break;
+                case "stats":
+                    System.out.println("=================");
+                    System.out.print("stats \n");
+                    System.out.println("=================");
+                    stats();
 
-                    case "login":
-                        System.out.println("=================");
-                        System.out.print("login \n");
-                        System.out.println("=================");
-                        login(scanner);
+                    break;
+                case "help":
+                    System.out.println("=================");
+                    System.out.print("help your self \n");
+                    System.out.println("=================");
+                    help();
 
-                        break;
-                    case "stats":
-                        System.out.println("=================");
-                        System.out.print("stats \n");
-                        System.out.println("=================");
-                        stats();
+                    break;
 
-                        break;
-                    case "help":
-                        System.out.println("=================");
-                        System.out.print("help your self \n");
-                        System.out.println("=================");
-                        help();
+                case "logout":
+                    System.out.println("=================");
+                    logout();
+                    System.out.println("=================");
+                    break;
+                case "ls":
+                    if (!parts[1].isEmpty()) {
 
-                        break;
+                        listwithpermition(parts[1]);
 
-                    case "logout":
-                        System.out.println("=================");
-                        logout();
-                        System.out.println("=================");
-                        break;
-                    case "ls":
+                    } else {
                         ls();
-                        break;
+                    }
+                    break;
 
-                    default:
-                        System.out.print("invalide input  \n");
-                        break;
-                }
+                case "touch":
+                    createfile(parts[1]);
 
-            } else if (parts.length == 2) {
-                String commande = parts[0];
-                String fileName = parts[1];
+                    break;
+                case "nano":
+                    nano(parts[1]);
+                    break;
 
-                switch (commande) {
-                    case "touch":
-                        createfile(fileName);
+                case "cat":
+                    cat(parts[1]);
 
-                        break;
-                    case "nano":
-                        nano(fileName);
-                        break;
+                    break;
+                case "rm":
+                    rm(parts[1]);
 
-                    case "ls":
+                    break;
+                case "chmod":
+                    chmod(parts[1], parts[2]);
+                    break;
+                case "exit":
+                    System.out.println("bye:: lineperm team ");
+                    return;
 
-                        String option = parts[1];
-                        listwithpermition(option);
-                        break;
+                default:
+                    System.out.println("invalide input");
 
-                    case "cat":
-                        cat(fileName);
-
-                        break;
-                    case "rm":
-                        rm(fileName);
-
-                        break;
-
-                    default:
-                        System.out.println("invalide commannde");
-                        break;
-                }
-
-            } else if (parts.length == 3) {
-                String commande = parts[0];
-                String droit = parts[1];
-                String fileName = parts[2];
-
-                switch (commande) {
-                    case "chmod":
-                        chmod(droit, fileName);
-
-                        break;
-
-                    default:
-                        break;
-                }
-            } else {
-                System.out.println("invalid command");
             }
 
             if (UserService.isAuth) {
@@ -136,12 +105,11 @@ public class Console {
 
             input = scanner.nextLine();
 
-            if (input.equals("exit")) {
-                System.out.print("bye");
-            }
+            // if (input.equals("exit")) {
+            // System.out.print("bye");
+            // }
 
-        }
-        scanner.close();
+        } while (!input.equals("exit"));
     }
 
     public static void signup(Scanner scanner) {
@@ -188,12 +156,12 @@ public class Console {
         }
     }
 
-    public static void logout() {
+    private void logout() {
         userService.logout();
 
     }
 
-    public static void createfile(String fileName) {
+    private void createfile(String fileName) {
         if (UserService.isAuth) {
 
             fileService.createFile(fileName);
@@ -203,7 +171,7 @@ public class Console {
 
     }
 
-    public static void nano(String fileName) {
+    private void nano(String fileName) {
         if (UserService.isAuth) {
             fileService.nano(fileName);
         } else {
@@ -211,7 +179,7 @@ public class Console {
         }
     }
 
-    public static void ls() {
+    private void ls() {
         if (!UserService.isAuth) {
             System.out.println("your are not connected !!");
             return;
@@ -219,7 +187,7 @@ public class Console {
         fileService.ls();
     }
 
-    public static void cat(String fileName) {
+    private void cat(String fileName) {
         if (!UserService.isAuth) {
             System.out.println("your are not connected !!");
             return;
@@ -228,14 +196,14 @@ public class Console {
 
     }
 
-    public static void listwithpermition(String option) {
+    private void listwithpermition(String option) {
         if (option.equals("-l")) {
             fileService.listWithPermision();
         }
 
     }
 
-    public static void chmod(String droit, String fileName) {
+    private void chmod(String droit, String fileName) {
         if (!UserService.isAuth) {
             System.out.println("your are not connected !!");
             return;
@@ -245,7 +213,7 @@ public class Console {
 
     }
 
-    public static void stats() {
+    private void stats() {
         Analyzer analyzer = new Analyzer();
         analyzer.start();
 
@@ -257,9 +225,11 @@ public class Console {
             System.out.println("login");
 
         } else {
-            System.out.println("cat ");
-            System.out.println("nano");
-            System.out.println("touch");
+            System.out.println("cat + fileName");
+            System.out.println("nano + filename");
+            System.out.println("touch + fileName");
+            System.out.println("chmod + fileName");
+            System.out.println("rm + fileName");
         }
     }
 
