@@ -1,2 +1,0 @@
-bugs : 
-test if the fileName allready exists then if not create the it if it is sout("file allready exists");

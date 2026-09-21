@@ -28,6 +28,7 @@ public class Analyzer {
 
         System.out.print("choix :");
         int number = scanner.nextInt();
+        
         if (number == 0) {
             System.out.println("Au revoir ! analyzeur team");
 

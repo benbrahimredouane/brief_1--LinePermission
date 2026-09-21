@@ -32,6 +32,9 @@ public class LogService {
             List<String> lines = Files.readAllLines(path);
             // lines.forEach(line -> logs.add(line));
             for (String line : lines) {
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
                 String[] parts = line.split(";", 6);
 
                 // date, time, ownerFile, fileName, action, status
