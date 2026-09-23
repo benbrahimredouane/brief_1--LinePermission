@@ -1,5 +1,5 @@
 package ma.youcode.lineperm.dao;
 
-public class UserDoa {
+public class FileDao {
     
 }

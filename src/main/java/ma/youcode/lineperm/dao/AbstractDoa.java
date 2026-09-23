@@ -4,7 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public abstract class AbstractDoa {
+
+public abstract class AbstractDoa implements Dao {
 
     protected Connection getConnection() throws SQLException {
 
@@ -12,5 +13,6 @@ public abstract class AbstractDoa {
         return conn;
 
     };
+   
 
 }
