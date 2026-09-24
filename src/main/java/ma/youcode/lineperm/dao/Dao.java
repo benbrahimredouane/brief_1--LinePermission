@@ -1,10 +1,10 @@
 package ma.youcode.lineperm.dao;
 
-import ma.youcode.lineperm.model.User;
+import java.util.Optional;
 
 public interface Dao<T> {
-    public void save(User user);
-    public void findById(int id);
-    public void delete(User user);
+    public void save(T o);
+    public Optional<T> findById(int id);
+    public void delete(T o);
     
 }
