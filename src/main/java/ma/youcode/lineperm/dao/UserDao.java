@@ -63,16 +63,18 @@ public class UserDao extends AbstractDao<User> {
         try (
                 Connection conn = getConnection();
                 PreparedStatement sts = conn.prepareStatement(sql);) {
+
             sts.setInt(1, id);
             ResultSet res = sts.executeQuery();
+
             if (res.next()) {
                 int UserId = res.getInt("UserId");
                 String login = res.getString("login");
                 String password = res.getString("password");
 
                 User newUser = new User(UserId, login, password);
-                Optional<User> opUser = Optional.of(newUser);
-                return opUser;
+
+                return Optional.of(newUser);
 
             }
         } catch (SQLException e) {

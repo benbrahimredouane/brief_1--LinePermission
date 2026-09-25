@@ -57,6 +57,12 @@ public class UserService {
 
     }
 
+    public void delete(User user) {
+
+        userDao.delete(user);
+
+    }
+
     public void logout() {
         // System.out.println(isAuth);
         if (!isAuth) {

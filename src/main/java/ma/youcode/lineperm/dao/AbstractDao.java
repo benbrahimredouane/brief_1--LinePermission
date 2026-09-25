@@ -6,11 +6,18 @@ import java.sql.SQLException;
 
 
 public abstract class AbstractDao<T> implements Dao<T> {
+    
+
+    private static Connection instance;
 
     protected Connection getConnection() throws SQLException {
+        
+        if(instance == null || instance.isClosed()){
 
-        Connection conn = DriverManager.getConnection("jdbc:sqlite:db/youcode.db");
-        return conn;
+        instance = DriverManager.getConnection("jdbc:sqlite:db/youcode.db");
+        return instance;
+        }
+        return instance;
 
     }
    
