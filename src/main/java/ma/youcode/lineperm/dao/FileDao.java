@@ -22,7 +22,7 @@ public class FileDao extends AbstractDao<BriefFile> {
             System.out.println("this file allready exists !");
             return;
         }
-        
+
         String sql = "INSERT INTO files(filename,droits,UserId) Values(?,?,?) ";
 
         try (
@@ -57,7 +57,7 @@ public class FileDao extends AbstractDao<BriefFile> {
             ResultSet resu = statment.executeQuery();
 
             if (resu.next()) {
-                int idd = resu.getInt("FileId");
+
                 String fileName = resu.getString("filename");
                 String droits = resu.getString("droits");
                 int usId = resu.getInt("UserId");
@@ -104,7 +104,7 @@ public class FileDao extends AbstractDao<BriefFile> {
             ResultSet bfile = statement.executeQuery();
 
             if (bfile.next()) {
-                int id = bfile.getInt("FileId");
+                
                 String filename = bfile.getString("filename");
                 String droits = bfile.getString("droits");
                 int uId = bfile.getInt("UserId");
@@ -113,6 +113,7 @@ public class FileDao extends AbstractDao<BriefFile> {
                 return Optional.of(new BriefFile(owner.get().getName(), filename, droits));
 
             }
+            
 
         } catch (SQLException e) {
             System.err.println("error: " + e.getMessage());
@@ -126,78 +127,69 @@ public class FileDao extends AbstractDao<BriefFile> {
 
         Optional<BriefFile> bfile = findById(id);
 
-        if (bfile.isPresent()) {
-            BriefFile file = bfile.get();
+        BriefFile file = bfile.get();
 
-            if (!UserService.getCurrentUser().getName().equals(file.getOwner())) {
-                System.out.println("not allowed : not your file");
+        String permition = file.getPermition();
+        char[] chars = permition.toCharArray();
+
+        switch (droit) {
+            case "r":
+                chars[0] = 'r';
+                break;
+            case "w":
+                chars[1] = 'w';
+                chars[0] = 'r';
+                break;
+            case "d":
+                chars[2] = 'd';
+                break;
+            case "-d":
+                chars[2] = '-';
+                break;
+            case "-r":
+                chars[0] = '-';
+                chars[1] = '-';
+                break;
+            case "-w":
+                chars[1] = '-';
+
+                break;
+            default:
+                System.out.println("invalide permition");
                 return;
-            }
-
-            String permition = file.getPermition();
-            char[] chars = permition.toCharArray();
-
-            switch (droit) {
-                case "r":
-                    chars[0] = 'r';
-                    break;
-                case "w":
-                    chars[1] = 'w';
-                    chars[0] = 'r';
-                    break;
-                case "d":
-                    chars[2] = 'd';
-                    break;
-                case "-d":
-                    chars[2] = '-';
-                    break;
-                case "-r":
-                    chars[0] = '-';
-                    chars[1] = '-';
-                    break;
-                case "-w":
-                    chars[1] = '-';
-
-                    break;
-                default:
-                    System.out.println("invalide permition");
-                    return;
-            }
-            String newPer = new String(chars);
-
-            file.setPermition(newPer);
-
-            // change the permition on db
-            String sql = "UPDATE TABLE files set droits = ? where FileId = ?";
-
-            try (
-                    Connection conn = getConnection();
-                    PreparedStatement statement = conn.prepareStatement(sql)) {
-                statement.setString(1, newPer);
-                statement.setInt(2, id);
-                statement.executeUpdate();
-                System.out.println("update with suucees");
-                System.out.println(file.getFileName() + " : rwd|" + permition + " -> rwd|" + newPer);
-
-            } catch (SQLException e) {
-                System.err.println("error: " + e.getMessage());
-
-            }
-
-        } else {
-            System.out.println("this file not exists");
         }
+        String newPer = new String(chars);
+
+        // file.setPermition(newPer);
+
+        // change the permition on db
+        String sql = "UPDATE files set droits = ? where FileId = ?";
+
+        try (
+                Connection conn = getConnection();
+                PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setString(1, newPer);
+            statement.setInt(2, id);
+            statement.executeUpdate();
+            System.out.println("update with suucees");
+            System.out.println(file.getFileName() + " : rwd|" + permition + " -> rwd|" + newPer);
+
+        } catch (SQLException e) {
+            System.err.println("error: " + e.getMessage());
+
+        }
+
     }
-    public Optional<BriefFile> findByFileName(String fileName){
+
+    public Optional<BriefFile> findByFileName(String fileName) {
         String sql = "SELECT * FROM files where filename = ?";
 
-        try(
-            Connection conn = getConnection();
-            PreparedStatement statment = conn.prepareStatement(sql)
-        ){
+        try (
+                Connection conn = getConnection();
+                PreparedStatement statment = conn.prepareStatement(sql)) {
             statment.setString(1, fileName);
             ResultSet res = statment.executeQuery();
-            if(res.next()){
+            if (res.next()) {
                 int id = res.getInt("FileId");
                 String filename = res.getString("filename");
                 String droits = res.getString("droits");
@@ -205,36 +197,35 @@ public class FileDao extends AbstractDao<BriefFile> {
 
                 String owner = userDao.findById(userid).get().getName();
 
-
-                return Optional.of(new BriefFile(id,owner, filename, droits));
+                return Optional.of(new BriefFile(id, owner, filename, droits));
             }
 
-        }catch(SQLException e){
-            System.err.println("error: "+e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("error: " + e.getMessage());
         }
         return Optional.empty();
     }
-    public List<BriefFile> findall(){
+
+    public List<BriefFile> findall() {
         String sql = "SELECT  filename, droits, users.login FROM files JOIN users on files.UserId = users.UserId";
         List<BriefFile> files = new ArrayList<>();
 
-        try(
-            Connection conn = getConnection();
-            PreparedStatement statement = conn.prepareStatement(sql)
-        ){
-            ResultSet res = statement.executeQuery();
-            while(res.next()){
-                
+        try (
+                Connection conn = getConnection();
+                PreparedStatement statement = conn.prepareStatement(sql);
+                ResultSet res = statement.executeQuery()) {
+
+            while (res.next()) {
+
                 String filename = res.getString("filename");
                 String droits = res.getString("droits");
                 String owner = res.getString("login");
-                
-                files.add(new BriefFile(owner,filename, droits));
 
+                files.add(new BriefFile(owner, filename, droits));
 
             }
-        }catch(SQLException e){
-            System.err.println("error: sql "+ e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("error: sql " + e.getMessage());
         }
         return files;
     }

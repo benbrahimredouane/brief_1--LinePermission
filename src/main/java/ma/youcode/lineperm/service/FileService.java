@@ -286,7 +286,7 @@ public class FileService {
     int id = file.getFileId();
 
     if (!owner.equals(logeduser)) {
-    System.out.println("that is not your file to change permition");
+    System.out.println("not allowed : not your file");
     return;
     }
     filedao.updateDroits(id,droit);
