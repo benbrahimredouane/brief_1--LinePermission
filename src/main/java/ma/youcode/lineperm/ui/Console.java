@@ -4,14 +4,17 @@ package ma.youcode.lineperm.ui;
 // import java.nio.file.Files;
 import java.util.Scanner;
 
+import ma.youcode.lineperm.dao.FileDao;
 import ma.youcode.lineperm.dao.UserDao;
+import ma.youcode.lineperm.service.FileService;
 // import ma.youcode.lineperm.service.FileService;
 import ma.youcode.lineperm.service.UserService;
 
 public class Console {
     UserDao userDao = new UserDao();
+    FileDao filedao = new FileDao();
     public UserService userService = new UserService(userDao);
-    // public static FileService fileService = new FileService();
+    public FileService fileService = new FileService(filedao);
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
@@ -58,35 +61,46 @@ public class Console {
                     logout();
                     System.out.println("=================");
                     break;
-                // case "ls":
-                // if (!parts[1].isEmpty()) {
+                case "ls":
+                    if (parts.length == 2) {
 
-                // listwithpermition(parts[1]);
+                        listwithpermition(parts[1]);
 
-                // } else {
-                // ls();
-                // }
-                // break;
+                    } else {
+                        ls();
+                    }
+                    break;
 
-                // case "touch":
-                // createfile(parts[1]);
+                case "touch":
+                    if (parts.length == 2) {
+                        createfile(parts[1]);
+                    }
 
-                // break;
-                // case "nano":
-                // nano(parts[1]);
-                // break;
+                    break;
 
-                // case "cat":
-                // cat(parts[1]);
+                case "nano":
+                    if (parts.length == 2) {
+                        nano(parts[1]);
+                    }
+                    break;
 
-                // break;
-                // case "rm":
-                // rm(parts[1]);
+                case "cat":
+                    if (parts.length == 2) {
+                    cat(parts[1]);
+                    }
 
-                // break;
-                // case "chmod":
-                // chmod(parts[1], parts[2]);
-                // break;
+                    break;
+                case "rm":
+                    if (parts.length == 2) {
+                    rm(parts[1]);
+                    }
+
+                    break;
+                case "chmod":
+                    if (parts.length == 3) {
+                    chmod(parts[1], parts[2]);
+                    }
+                    break;
                 case "exit":
                     System.out.println("bye:: lineperm team ");
 
@@ -161,57 +175,55 @@ public class Console {
 
     }
 
-    // private void createfile(String fileName) {
-    // if (UserService.isAuth()) {
+    private void createfile(String fileName) {
+        if (UserService.isAuth()) {
 
-    // fileService.createFile(fileName);
-    // } else {
-    // System.out.println("you are not connected ::!!!");
-    // }
+            fileService.createFile(fileName);
+        } else {
+            System.out.println("you are not connected ::!!!");
+        }
 
-    // }
+    }
 
-    // private void nano(String fileName) {
-    // if (UserService.isAuth()) {
-    // fileService.nano(fileName);
-    // } else {
-    // System.out.println("your are not connected");
-    // }
-    // }
+    private void nano(String fileName) {
 
-    // private void ls() {
-    // if (!UserService.isAuth()) {
-    // System.out.println("your are not connected !!");
-    // return;
-    // }
-    // fileService.ls();
-    // }
+        fileService.nano(fileName);
 
-    // private void cat(String fileName) {
-    // if (!UserService.isAuth()) {
-    // System.out.println("your are not connected !!");
-    // return;
-    // }
-    // fileService.cat(fileName);
+    }
 
-    // }
+    private void ls() {
+        if (!UserService.isAuth()) {
+            System.out.println("your are not connected !!");
+            return;
+        }
+        fileService.ls();
+    }
 
-    // private void listwithpermition(String option) {
-    // if (option.equals("-l")) {
-    // fileService.listWithPermision();
-    // }
+    private void cat(String fileName) {
+        if (!UserService.isAuth()) {
+            System.out.println("your are not connected !!");
+            return;
+        }
+        fileService.cat(fileName);
 
-    // }
+    }
 
-    // private void chmod(String droit, String fileName) {
-    // if (!UserService.isAuth()) {
-    // System.out.println("your are not connected !!");
-    // return;
-    // }
+    private void listwithpermition(String option) {
+        if (option.equals("-l")) {
+            fileService.listWithPermision();
+        }
 
-    // fileService.chmod(droit, fileName);
+    }
 
-    // }
+    private void chmod(String droit, String fileName) {
+        if (!UserService.isAuth()) {
+            System.out.println("your are not connected !!");
+            return;
+        }
+
+        fileService.chmod(droit, fileName);
+
+    }
 
     private void stats() {
         Analyzer analyzer = new Analyzer();
@@ -233,8 +245,8 @@ public class Console {
         }
     }
 
-    // private void rm(String fileName) {
-    // fileService.rm(fileName);
-    // }
+    private void rm(String fileName) {
+        fileService.rm(fileName);
+    }
 
 }

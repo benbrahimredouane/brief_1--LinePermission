@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import ma.youcode.lineperm.model.BriefFile;
@@ -16,12 +18,12 @@ public class FileDao extends AbstractDao<BriefFile> {
     @Override
     public void save(BriefFile bFile) {
 
-        String sql = "INSERT INTO files(filename,droits,UserId) Values(?,?,?) ";
-
-        if(findById(bFile.getFileId()).isPresent()){
+        if (findById(bFile.getFileId()).isPresent()) {
             System.out.println("this file allready exists !");
-            return ;
+            return;
         }
+        
+        String sql = "INSERT INTO files(filename,droits,UserId) Values(?,?,?) ";
 
         try (
                 Connection conn = getConnection();
@@ -102,7 +104,7 @@ public class FileDao extends AbstractDao<BriefFile> {
             ResultSet bfile = statement.executeQuery();
 
             if (bfile.next()) {
-                int id = bfile.getInt("FileI");
+                int id = bfile.getInt("FileId");
                 String filename = bfile.getString("filename");
                 String droits = bfile.getString("droits");
                 int uId = bfile.getInt("UserId");
@@ -185,6 +187,56 @@ public class FileDao extends AbstractDao<BriefFile> {
         } else {
             System.out.println("this file not exists");
         }
+    }
+    public Optional<BriefFile> findByFileName(String fileName){
+        String sql = "SELECT * FROM files where filename = ?";
+
+        try(
+            Connection conn = getConnection();
+            PreparedStatement statment = conn.prepareStatement(sql)
+        ){
+            statment.setString(1, fileName);
+            ResultSet res = statment.executeQuery();
+            if(res.next()){
+                int id = res.getInt("FileId");
+                String filename = res.getString("filename");
+                String droits = res.getString("droits");
+                int userid = res.getInt("UserId");
+
+                String owner = userDao.findById(userid).get().getName();
+
+
+                return Optional.of(new BriefFile(id,owner, filename, droits));
+            }
+
+        }catch(SQLException e){
+            System.err.println("error: "+e.getMessage());
+        }
+        return Optional.empty();
+    }
+    public List<BriefFile> findall(){
+        String sql = "SELECT  filename, droits, users.login FROM files JOIN users on files.UserId = users.UserId";
+        List<BriefFile> files = new ArrayList<>();
+
+        try(
+            Connection conn = getConnection();
+            PreparedStatement statement = conn.prepareStatement(sql)
+        ){
+            ResultSet res = statement.executeQuery();
+            while(res.next()){
+                
+                String filename = res.getString("filename");
+                String droits = res.getString("droits");
+                String owner = res.getString("login");
+                
+                files.add(new BriefFile(owner,filename, droits));
+
+
+            }
+        }catch(SQLException e){
+            System.err.println("error: sql "+ e.getMessage());
+        }
+        return files;
     }
 
 }
