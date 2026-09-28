@@ -1,8 +1,0 @@
-redouane:$2a$10$ghoPAQXQzZ7/DXcUzSuRmeW0NMlbAau2m8qkSHZ/ztK6GKzQIVrfG
-reda:$2a$10$hdFD3yVC1PQWvlKZJOc8oev5AtyF.IbhIuybFZK.BEcodi72R9kHm
-bader:$2a$10$fSI3mlh7afide.2Afdy8/uigbb64dRrUWeiHbscDQjYLGf4vdufN.
-lhcen:$2a$10$J7RE9H.M2G7eedyXqNN/R.oWPoIKYPpqJapua61E/qhaZJviNmxGS
-amin:$2a$10$/jPKpRmRM/Zqzk5pQg2rduHXYEd/M5Bi8YDwn4iMUFEX0gAVeFeFS
-moha:$2a$10$2OD0Ha1gdIo6.SZYkcjKnuLN1UI2kYiwRnCvnoed2UCKiRE9YYNYS
-abdelaziz:$2a$10$c56r1R8Iw4toe/ZLZMfsau5vSzgrv1WvFS6VaajVSBR2l/V58Pps6
-hakim:$2a$10$jVWHWS/mIpvrvPZE2fAhvex2juP6.JjTkahwm1/Hfb71W3M/QqKqa

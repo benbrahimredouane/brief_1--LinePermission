@@ -2,20 +2,23 @@ package ma.youcode.lineperm.ui;
 
 import java.util.Scanner;
 
+import ma.youcode.lineperm.dao.LogDao;
 import ma.youcode.lineperm.service.LogService;
 
 public class Analyzer {
-    private LogService logservice = new LogService();
+    private LogDao logDao = new LogDao();
+    private LogService logservice = new LogService(logDao);
 
     public void start() {
 
-        LogService.loadLogs();
+        
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("welcome to the stats part chose an option by its number");
 
         System.out.println("=============LogAnalyzer============");
 
+        while (true) {
         System.out.println("1) Number of total actions");
         System.out.println("2) Number d'acces refuses");
         System.out.println("3) Users are distinct");
@@ -28,14 +31,6 @@ public class Analyzer {
 
         System.out.print("choix :");
         int number = scanner.nextInt();
-        
-        if (number == 0) {
-            System.out.println("Au revoir ! analyzeur team");
-
-            return;
-        }
-
-        while (number != 0) {
 
             switch (number) {
                 case 1:
@@ -69,24 +64,12 @@ public class Analyzer {
                     break;
                 case 0:
                     System.out.println("Au revoir Analyzer");
-                    break;
+                    return;
 
                 default:
                     System.out.println("invalid choix");
                     break;
             }
-            System.out.println("1) Number of total actions");
-            System.out.println("2) Number d'acces refuses");
-            System.out.println("3) Users are distinct");
-            System.out.println("4) Actions by user");
-            System.out.println("5) Top 3 files consulted");
-            System.out.println("6) Acces refuses from the user");
-            System.out.println("7) User with most activities");
-            System.out.println("8) Partition of actions by type");
-            System.out.println("0) Quitter");
-
-            System.out.print("choix :");
-            number = scanner.nextInt();
 
         }
 

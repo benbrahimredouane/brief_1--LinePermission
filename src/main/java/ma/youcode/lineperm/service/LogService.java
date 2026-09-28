@@ -1,164 +1,106 @@
 package ma.youcode.lineperm.service;
 
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
+import java.time.LocalDateTime;
+
+import java.util.List;
+
+import ma.youcode.lineperm.dao.LogDao;
 import ma.youcode.lineperm.model.Log;
-import ma.youcode.lineperm.model.Log.*;
+import ma.youcode.lineperm.model.Log.Action;
+import ma.youcode.lineperm.model.Log.Status;
+
+
+
 
 public class LogService {
 
-    static List<Log> logs = new ArrayList<>();
+    private LogDao logDao;
 
-    public static void loadLogs() {
-        logs.clear();
-        try {
-            Path path = Path.of("src\\main\\resources\\actions.log");
-            if (!Files.exists(path)) {
-                System.out.println("file not found");
-                return;
-            }
-            List<String> lines = Files.readAllLines(path);
-            // lines.forEach(line -> logs.add(line));
-            for (String line : lines) {
-                if (line.trim().isEmpty()) {
-                    continue;
-                }
-                String[] parts = line.split(";", 6);
-
-                // date, time, ownerFile, fileName, action, status
-                // 2026-09-15;17:33;redouane;test1.txt;LECTURE;REFUSE
-
-                LocalDate date = LocalDate.parse(parts[0]);
-                LocalTime time = LocalTime.parse(parts[1]);
-                Action action = Action.valueOf(parts[4]);
-                Status status = Status.valueOf(parts[5]);
-
-                logs.add(new Log(date, time, parts[2], parts[3], action, status));
-
-            }
-
-        } catch (IOException e) {
-            System.out.println("ereur loading files");
-
-        }
-
+    public LogService(LogDao logDao) {
+        this.logDao = logDao;
     }
 
-    public void addLog(LocalDate date, LocalTime time, String ownerFile, String fileName,
-            Action action, Status status) {
+    public void addLog(LocalDateTime date, String ownerFile, String fileName,
+            Action action, Status status, int UserId) {
 
-        Log log = new Log(date, time, ownerFile, fileName, action, status);
-
-        StringBuilder Log = new StringBuilder();
-        Log.append(date.now());
-        Log.append(";");
-        Log.append(time.now().format(DateTimeFormatter.ofPattern("HH:mm")));
-        Log.append(";");
-
-        Log.append(ownerFile);
-        Log.append(";");
-
-        Log.append(fileName);
-        Log.append(";");
-
-        Log.append(action);
-        Log.append(";");
-
-        Log.append(status);
-        Log.append(System.lineSeparator());
-
-        try {
-            FileWriter writer = new FileWriter("src\\main\\resources\\actions.log", true);
-            writer.write(Log.toString());
-            writer.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("file not found ");
-        } catch (IOException e) {
-            System.out.println("something was wrong file not modifiyed");
-
-        }
-        logs.add(log);
+        Log log = new Log(null, null, ownerFile, fileName, action, status, UserId);
+        logDao.save(log);
 
     }
 
     public void countallactions() {
-        int c = logs.size();
-        System.out.println("total actions :" + c);
+        long c = logDao.compterTotal();
+        System.out.println("total actions : " + c);
 
     }
 
     public void countrefusedactions() {
-        System.out
-                .println("number refuse: " + logs.stream().filter(log -> log.getStatus() == Log.Status.REFUSE).count());
+        long c = logDao.compterTotalResused();
+        System.out.println("number refuse: " + c);
 
     }
 
     public void usersdisctint() {
-        System.out.println("users disctanct : " + logs.stream().map(log -> log.getOwnerFile()).distinct().toList());
+        List<String> users = logDao.usersdisctint();
+
+        if (users != null) {
+            for (String user : users) {
+                System.out.println("user name: " + user);
+            }
+        }
+
     }
 
     public void actionsPerUser() {
 
-        Map<String, Long> countByactions = logs.stream()
-                .collect(Collectors.groupingBy(log -> log.getOwnerFile(), Collectors.counting()));
-
-        countByactions.forEach((name, counter) -> System.out.println(name + "=" + counter));
+        if (logDao.actionsperusers() != null) {
+            for (String login : logDao.actionsperusers().keySet()) {
+                System.out.println("userName = " + login + " actions: " + logDao.actionsperusers().get(login));
+            }
+        }
 
     }
 
     public void top3files() {
-        Map<String, Long> files = logs.stream()
-                .collect(Collectors.groupingBy(log -> log.getFileName(), Collectors.counting()));
+      
+         if(logDao.top3() != null){
+            for(String file : logDao.top3().keySet() ){
+                System.out.println("filename: "+ file + " times: "+logDao.top3().get(file));
 
-        files.entrySet().stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                .limit(3).forEach(e -> System.out.println(e.getKey() + " " + e.getValue()));
-
+            }
+         }
     }
 
     public void accesrefusedfromtheuser() {
 
-        Map<String, Long> refusedByUser = logs.stream()
-                .filter(log -> log.getStatus() == Log.Status.REFUSE)
-                .collect(Collectors.groupingBy(
-                        Log::getOwnerFile,
-                        Collectors.counting()));
-
-        refusedByUser.forEach((user, count) -> System.out.println(user + "=>" + count + "refusal"));
+    if(logDao.accesrefusedfromtheuser() != null) {
+        for (String fild : logDao.accesrefusedfromtheuser().keySet() ){
+            System.out.println("user: "+fild +"-> actions refused: "+logDao.accesrefusedfromtheuser().get(fild));
+        }
+    }
+    
 
     }
 
     public void userwithmostactivites() {
 
-        Map<String, Long> users = logs.stream()
-                .collect(Collectors.groupingBy(log -> log.getOwnerFile(), Collectors.counting()));
-
-        Optional<Map.Entry<String, Long>> topUser = users.entrySet().stream()
-                .max(Map.Entry.comparingByValue());
-
-        topUser.ifPresent(e -> System.out.println("top user:" + e.getKey() + "with" + e.getValue() + "actions"));
+    if(logDao.themost() != null){
+        for(String name : logDao.themost().keySet()){
+            System.out.println("the most user: "+name +" with :"+logDao.themost().get(name) + " actions");
+        }
+    }
+   
 
     }
 
     public void actionsbytype() {
 
-        Map<Action, Long> acc = logs.stream()
-                .collect(Collectors.groupingBy(log -> log.getAction(), Collectors.counting()));
-
-        acc.forEach((ac, counter) -> System.out.println(ac + "=" + counter));
-
+  if(logDao.byActiontype() != null){
+        for(String action : logDao.byActiontype().keySet()){
+            System.out.println("{ "+action +"="+logDao.byActiontype().get(action) + "}");
+        }
+    }
     }
 
 }
