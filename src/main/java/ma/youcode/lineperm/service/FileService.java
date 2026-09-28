@@ -21,7 +21,9 @@ import java.util.stream.Collectors;
 import javax.swing.Action;
 
 import ma.youcode.lineperm.dao.FileDao;
+import ma.youcode.lineperm.dao.LogDao;
 import ma.youcode.lineperm.model.BriefFile;
+import ma.youcode.lineperm.model.Log;
 import ma.youcode.lineperm.model.User;
 
 // import java.io.FileNotFoundException;
@@ -48,7 +50,8 @@ import ma.youcode.lineperm.model.User;
 public class FileService {
 
     // UserService userService = new UserService();
-    // LogService logService = new LogService();
+    private LogDao logDao = new LogDao();
+    LogService logService = new LogService(logDao);
     private FileDao filedao;
 
     public FileService(FileDao fileDao) {
@@ -83,8 +86,7 @@ public class FileService {
             return;
         }
 
-        int id = UserService.getCurrentUser().getUserId();
-        Optional<BriefFile> Optionalfile = filedao.findByProprietaire(id);
+        Optional<BriefFile> Optionalfile = filedao.findByFileName(fileName);
 
         if (Optionalfile.isEmpty()) {
             System.out.println("file is not exists");
@@ -92,18 +94,18 @@ public class FileService {
         }
         BriefFile file = Optionalfile.get();
 
-        String owner = UserService.getCurrentUser().getName();
+        String logedUser = UserService.getCurrentUser().getName();
+        int UserId = UserService.getCurrentUser().getUserId();
 
         String fileOwner = file.getOwner();
         String permition = file.getPermition();
-        LocalDate date = LocalDate.now();
-        LocalTime time = LocalTime.now();
+       
 
-        if (!owner.equals(fileOwner)) {
+        if (!logedUser.equals(fileOwner)) {
             if (!permition.contains("d")) {
 
                 System.out.println("not allowed");
-                // logService.addLog(date, time, owner, fileName, Action.DELETE, Status.REFUSE);
+                logService.addLog(null, logedUser, fileName, Log.Action.DELETE, Log.Status.REFUSE, UserId);
                 return;
             }
 
@@ -116,9 +118,10 @@ public class FileService {
         try {
             boolean deleted = Files.deleteIfExists(path);
             if (deleted) {
+                
                 System.out.println("file deleted with succes!");
-
-                // logService.addLog(date, time, owner, fileName, Action.DELETE, Status.OK);
+                logService.addLog(null, logedUser, fileName, Log.Action.DELETE, Log.Status.OK, UserId);
+                filedao.delete(file);
 
             }
         } catch (IOException e) {
@@ -128,168 +131,176 @@ public class FileService {
 
     public void nano(String fileName) {
 
-        if(!UserService.isAuth()){
+        if (!UserService.isAuth()) {
             System.out.println("you are not connected!!!");
             return;
 
         }
 
-    String logedUser = UserService.getCurrentUser().getName();
+        String logedUser = UserService.getCurrentUser().getName();
+        int UserId =UserService.getCurrentUser().getUserId();
 
-    Optional<BriefFile> Optionalfile = filedao.findByFileName(fileName);
-    if(Optionalfile.isEmpty()){
-        System.out.println("this file not even exists");
-        return;
+        Optional<BriefFile> Optionalfile = filedao.findByFileName(fileName);
+        if (Optionalfile.isEmpty()) {
+            System.out.println("this file not even exists");
+            return;
 
-    }
-    BriefFile file = Optionalfile.get();
+        }
+        BriefFile file = Optionalfile.get();
 
-    String owner = file.getOwner();
-    String permition = file.getPermition();
+        String owner = file.getOwner();
+        String permition = file.getPermition();
 
-    LocalDate date = LocalDate.now();
-    LocalTime time = LocalTime.now();
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
 
-    if (!owner.equals(logedUser) && permition.charAt(0) != 'w') {
-    System.out.println("not allowed");
+        if (!owner.equals(logedUser) && permition.charAt(0) != 'w') {
+            System.out.println("not allowed");
+      logService.addLog(null, logedUser, fileName, Log.Action.ECRITURE, Log.Status.REFUSE, UserId);
 
-    // logService.addLog(date, time, logedUser, fileName, Action.ECRITURE,Status.REFUSE);
-    return;
-    }
 
-    // logService.addLog(date, time, logedUser, fileName, Action.ECRITURE,
-    // Status.OK);
-    Scanner scanner = new Scanner(System.in);
+            // logService.addLog(date, time, logedUser, fileName,
+            // Action.ECRITURE,Status.REFUSE);
+            return;
+        }
 
-    StringBuilder sc = new StringBuilder();
-    System.out.println(" : =============:::mode modifie activer:::============== : ");
+        // logService.addLog(date, time, logedUser, fileName, Action.ECRITURE,
+        // Status.OK);
+              logService.addLog(null, logedUser, fileName, Log.Action.ECRITURE, Log.Status.OK, UserId);
 
-    while (true) {
-    String text = scanner.nextLine();
+        Scanner scanner = new Scanner(System.in);
 
-    if (text.contains("EOF")) {
-    break;
-    }
-    sc.append(text).append(System.lineSeparator());
+        StringBuilder sc = new StringBuilder();
+        System.out.println(" : =============:::mode modifie activer:::============== : ");
 
-    }
+        while (true) {
+            String text = scanner.nextLine();
 
-    try {
+            if (text.contains("EOF")) {
+                break;
+            }
+            sc.append(text).append(System.lineSeparator());
 
-    FileWriter writer = new FileWriter("src\\main\\resources\\filesStorage\\" +
-    fileName, true);
-    writer.write(sc.toString());
-    writer.close();
+        }
 
-    } catch (IOException e) {
-    System.out.println("could not write the file");
-    }
+        try {
+
+            FileWriter writer = new FileWriter("src\\main\\resources\\filesStorage\\" +
+                    fileName, true);
+            writer.write(sc.toString());
+            writer.close();
+
+        } catch (IOException e) {
+            System.out.println("could not write the file");
+        }
     }
 
     public void ls() {
-    System.out.println("=================");
-    System.out.println("lister files....");
-    System.out.println("=================");
+        System.out.println("=================");
+        System.out.println("lister files....");
+        System.out.println("=================");
 
-    String dirctpath = "src\\main\\resources\\filesStorage";
+        String dirctpath = "src\\main\\resources\\filesStorage";
 
-    File dir = new File(dirctpath);
+        File dir = new File(dirctpath);
 
-    File[] files = dir.listFiles();
+        File[] files = dir.listFiles();
 
-    if (files != null) {
-    for (File file : files) {
-    System.out.println(file.getName());
-    }
-    }
+        if (files != null) {
+            for (File file : files) {
+                System.out.println(file.getName());
+            }
+        }
 
     }
 
     public void listWithPermision() {
 
-        if(!UserService.isAuth()){
+        if (!UserService.isAuth()) {
             System.out.println("you are not connected !");
             return;
         }
 
-    System.out.println("=================");
-    System.out.println("lister files with permision....");
-    System.out.println("=================");
+        System.out.println("=================");
+        System.out.println("lister files with permision....");
+        System.out.println("=================");
 
-    List<BriefFile> files= filedao.findall() ;
-    for(BriefFile file : files){
-        System.out.println("rwd | " + file.getPermition() + " " + file.getOwner() + " " + file.getFileName());
-    }
+        List<BriefFile> files = filedao.findall();
+        for (BriefFile file : files) {
+            System.out.println("rwd | " + file.getPermition() + " " + file.getOwner() + " " + file.getFileName());
+        }
 
     }
 
     public void cat(String fileName) {
-    String logedUser = UserService.getCurrentUser().getName();
+        String logedUser = UserService.getCurrentUser().getName();
+        int UserId = UserService.getCurrentUser().getUserId();
 
-    Optional<BriefFile> Optionalfile = filedao.findByFileName(fileName);
+        Optional<BriefFile> Optionalfile = filedao.findByFileName(fileName);
 
-    if(Optionalfile.isEmpty()){
-        System.out.println("that file not found!");
-        return;
+        if (Optionalfile.isEmpty()) {
+            System.out.println("that file not found!");
+            return;
+        }
+        BriefFile file = Optionalfile.get();
+
+        // LocalDate date = LocalDate.now();
+        // LocalTime time = LocalTime.now();
+
+        String owner = file.getOwner();
+        String permition = file.getPermition();
+
+        if (!owner.equals(logedUser) && permition.charAt(0) != 'r') {
+            System.out.println("not allowed");
+                          logService.addLog(null, logedUser, fileName, Log.Action.LECTURE, Log.Status.REFUSE, UserId);
+
+            return;
+        }
+
+        // logService.addLog(date, time, logedUser, fileName, Action.LECTURE,
+        // Status.REFUSE);
+        // return;
+        // }
+
+        // logService.addLog(date, time, logedUser, fileName, Action.LECTURE,
+        // Status.OK);
+      logService.addLog(null, logedUser, fileName, Log.Action.ECRITURE, Log.Status.OK, UserId);
+
+        File file1 = new File("src\\main\\resources\\filesStorage\\" + fileName);
+        if (file1.length() == 0) {
+            System.out.println("(this file is empty)");
+        }
+        try {
+
+            Scanner sc = new Scanner(file1);
+            while (sc.hasNextLine()) {
+                System.out.println(sc.nextLine());
+            }
+        } catch (Exception e) {
+            System.out.println("can't read file");
+        }
+
     }
-    BriefFile file = Optionalfile.get();
-
-    // LocalDate date = LocalDate.now();
-    // LocalTime time = LocalTime.now();
-
-   
-    String owner = file.getOwner();
-    String permition = file.getPermition();
-
-    if (!owner.equals(logedUser) && permition.charAt(0) != 'r') {
-    System.out.println("not allowed");
-    return;
-    }
-
-    // logService.addLog(date, time, logedUser, fileName, Action.LECTURE,
-    // Status.REFUSE);
-    // return;
-    // }
-
-    // logService.addLog(date, time, logedUser, fileName, Action.LECTURE,
-    // Status.OK);
-
-    File file1 = new File("src\\main\\resources\\filesStorage\\" + fileName);
-    if (file1.length() == 0) {
-    System.out.println("(this file is empty)");
-    }
-    try {
-
-    Scanner sc = new Scanner(file1);
-    while (sc.hasNextLine()) {
-    System.out.println(sc.nextLine());
-    }
-    } catch (Exception e) {
-    System.out.println("can't read file");
-    }
-
-    }
-
 
     public void chmod(String droit, String fileName) {
-    String logeduser = UserService.getCurrentUser().getName();
+        String logeduser = UserService.getCurrentUser().getName();
 
-    Optional<BriefFile> Optionalfile = filedao.findByFileName(fileName);
+        Optional<BriefFile> Optionalfile = filedao.findByFileName(fileName);
 
-    if (Optionalfile.isEmpty()) {
-    System.out.println("file not found");
-    return;
-    }
-    BriefFile file = Optionalfile.get();
-    String owner = file.getOwner();
-   
-    int id = file.getFileId();
+        if (Optionalfile.isEmpty()) {
+            System.out.println("file not found");
+            return;
+        }
+        BriefFile file = Optionalfile.get();
+        String owner = file.getOwner();
 
-    if (!owner.equals(logeduser)) {
-    System.out.println("not allowed : not your file");
-    return;
-    }
-    filedao.updateDroits(id,droit);
+        int id = file.getFileId();
+
+        if (!owner.equals(logeduser)) {
+            System.out.println("not allowed : not your file");
+            return;
+        }
+        filedao.updateDroits(id, droit);
 
     }
 
