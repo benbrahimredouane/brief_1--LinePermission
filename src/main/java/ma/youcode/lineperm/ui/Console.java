@@ -12,6 +12,7 @@ public class Console {
     public static FileService fileService = new FileService();
 
     public void start() {
+        
         Scanner scanner = new Scanner(System.in);
         System.out.print("lineperm> ");
         String input = scanner.nextLine();
@@ -60,7 +61,7 @@ public class Console {
                     System.out.println("=================");
                     break;
                 case "ls":
-                    if (!parts[1].isEmpty()) {
+                    if (parts.length == 2) {
 
                         listwithpermition(parts[1]);
 

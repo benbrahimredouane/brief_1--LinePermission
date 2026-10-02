@@ -9,9 +9,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import ma.youcode.lineperm.model.Log;
@@ -158,6 +160,18 @@ public class LogService {
                 .collect(Collectors.groupingBy(log -> log.getAction(), Collectors.counting()));
 
         acc.forEach((ac, counter) -> System.out.println(ac + "=" + counter));
+
+    }
+
+    public void getlogsByActionAndFileNameToUpperCaseSortedByFileNameDESC( String action){
+
+        Comparator<Log> sortebyfilenameDESC = (m1,m2)-> m1.getFileName().compareTo(m2.getFileName());
+        
+        Predicate<Log> logsByActions = (log)->log.getAction().toString().equals(action);
+        logs.stream().filter(logsByActions)
+        .map(log -> { log.setFileName(log.getFileName().toUpperCase());  return log;})
+        .sorted(sortebyfilenameDESC)
+        .forEach(e -> System.out.println(e.getFileName() +" "+e.getOwnerFile()+ " "+ e.getAction()+" "+e.getStatus()+" "+e.getDate()+" "+e.getTime()));
 
     }
 

@@ -28,7 +28,7 @@ public class Analyzer {
 
         System.out.print("choix :");
         int number = scanner.nextInt();
-        
+
         if (number == 0) {
             System.out.println("Au revoir ! analyzeur team");
 
@@ -65,6 +65,12 @@ public class Analyzer {
                     break;
                 case 8:
                     logservice.actionsbytype();
+
+                    break;
+
+                case 9:
+                    logservice.getlogsByActionAndFileNameToUpperCaseSortedByFileNameDESC("LECTURE");
+                    System.out.println("test");
 
                     break;
                 case 0:

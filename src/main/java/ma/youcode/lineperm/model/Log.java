@@ -20,6 +20,10 @@ public class Log {
     private LocalTime time;
     private String ownerFile;
     private String fileName;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     private Action action;
     private Status status;
 
