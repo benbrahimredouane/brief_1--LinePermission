@@ -1,6 +1,10 @@
 package ma.youcode.lineperm.service;
 
 
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import java.util.List;
@@ -26,6 +30,31 @@ public class LogService {
 
         Log log = new Log(null, null, ownerFile, fileName, action, status, UserId);
         logDao.save(log);
+        
+        StringBuilder sc = new StringBuilder();
+        sc.append(LocalDate.now());
+        sc.append(";");
+        sc.append(LocalDate.now());
+        sc.append(";");
+        sc.append(ownerFile);
+        sc.append(";");
+        sc.append(fileName);
+        sc.append(";");
+        sc.append(action);
+        sc.append(";");
+        sc.append(status);
+        sc.append(System.lineSeparator());
+        try {
+            FileWriter writer = new FileWriter("src\\main\\resources\\actions.log", true);
+            writer.write(sc.toString());
+            writer.close();
+            System.out.println("log saved in file");
+        } catch (FileNotFoundException e) {
+            System.err.println("error with path : " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("error: " + e.getMessage());
+        }
+
 
     }
 
